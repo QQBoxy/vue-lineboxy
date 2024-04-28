@@ -31,6 +31,10 @@ const router = createRouter({
           path: '/kanban/:id',
           component: () => import('../views/BoardView.vue')
         },
+        {
+          path: '/kanban/:boardId/:listId',
+          component: () => import('../views/BoardListView.vue')
+        },
       ]
     },
   ]

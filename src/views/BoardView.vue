@@ -35,7 +35,6 @@ const getKanban = async () => {
       method: 'get',
       url: `/api/kanban-boards/${route.params.id}`,
     });
-    console.log(res.data);
     kanbanBoardName.value = res.data.name;
   } catch (e) {
     console.log(e);
@@ -51,7 +50,6 @@ const getKanbanLists = async () => {
         boardId: route.params.id,
       }
     });
-    console.log(res.data);
     kanbanLists.value = res.data.data;
   } catch (e) {
     console.log(e);
@@ -89,12 +87,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <h1>{{ kanbanBoardName }} | Kanban</h1>
+  <h1>
+    Kanban
+  </h1>
+  <h3>
+    <RouterLink to="/kanban">Kanbans</RouterLink> &gt; {{ kanbanBoardName }}
+  </h3>
   <ModalView :cols="{ name: 'Kanban List Name' }" @submit="handleCreateKanbanList">
     Create List</ModalView>
   <ul>
     <li v-for="list in kanbanLists" :key="list.id">
-      [{{ list.order }}] {{ list.name }} |
+      <RouterLink :to="`/kanban/${route.params.id}/${list.id}`">[{{ list.order }}] {{ list.name }}</RouterLink> |
       <ModalView :cols="{ name: 'Kanban List Name', order: 'Kanban List Order' }" :data="{ id: list.id }"
         @submit="handleEditKanbanList">
         Edit</ModalView> |
