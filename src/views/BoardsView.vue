@@ -60,7 +60,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <h1>Kanbans</h1>
+  <h1>Kanban</h1>
+  <h3>Kanbans</h3>
   <ModalView :cols="{ name: 'Kanban Board Name' }" @submit="handleCreateKanbanBoard">
     Create Kanban</ModalView>
   <ul>

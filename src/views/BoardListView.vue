@@ -111,7 +111,7 @@ onMounted(() => {
     Kanban
   </h1>
   <h3>
-    <RouterLink to="/kanban">Kanban</RouterLink> &gt;
+    <RouterLink to="/kanban">Kanbans</RouterLink> &gt;
     <RouterLink :to="`/kanban/${route.params.boardId}`">{{ kanbanBoardName }}</RouterLink> &gt;
     {{ listName }}
   </h3>
