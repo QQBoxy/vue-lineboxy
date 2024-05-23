@@ -110,13 +110,13 @@ onMounted(() => {
   <h1>
     Kanban
   </h1>
-  <ModalView :cols="{ title: 'Card Title', description: 'Card Description' }" @submit="handleCreateKanbanCard">
-    Create Card</ModalView>
   <h3>
     <RouterLink to="/kanban">Kanban</RouterLink> &gt;
     <RouterLink :to="`/kanban/${route.params.boardId}`">{{ kanbanBoardName }}</RouterLink> &gt;
     {{ listName }}
   </h3>
+  <ModalView :cols="{ title: 'Card Title', description: 'Card Description' }" @submit="handleCreateKanbanCard">
+    Create Card</ModalView>
   <ul>
     <li v-for="card in cards" :key="card.id">
       [{{ card.order }}] {{ card.title }} | {{ card.description }} |
