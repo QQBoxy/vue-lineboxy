@@ -58,10 +58,10 @@ const getKanbanLists = async () => {
 
 const handleEditKanbanList = async (data: Record<string, string>) => {
   const patch: Partial<List> = {};
-  if (data.name !== "") {
+  if (data.name !== undefined) {
     patch.name = data.name;
   }
-  if (data.order !== "") {
+  if (data.order !== undefined) {
     patch.order = parseInt(data.order);
   }
   await axios({
