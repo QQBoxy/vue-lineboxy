@@ -47,6 +47,9 @@ const getKanbanBoards = async () => {
     const res = await axios({
       method: 'get',
       url: '/api/kanban-boards',
+      params: {
+        limit: 999
+      }
     });
     kanbanBoards.value = res.data.data;
   } catch (e) {

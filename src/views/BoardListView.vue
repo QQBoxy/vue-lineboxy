@@ -63,6 +63,7 @@ const getKanbanCards = async () => {
       url: `/api/kanban-cards`,
       params: {
         listId: route.params.listId,
+        limit: 999
       }
     });
     cards.value = res.data.data;

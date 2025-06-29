@@ -48,6 +48,7 @@ const getKanbanLists = async () => {
       url: '/api/kanban-lists',
       params: {
         boardId: route.params.id,
+        limit: 999
       }
     });
     kanbanLists.value = res.data.data;
