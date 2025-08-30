@@ -35,6 +35,10 @@ const router = createRouter({
           path: '/kanban/:boardId/:listId',
           component: () => import('../views/BoardListView.vue')
         },
+        {
+          path: '/iot',
+          component: () => import('../views/IoTView.vue')
+        },
       ]
     },
   ]
