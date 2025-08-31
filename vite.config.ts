@@ -10,7 +10,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png'],
+      includeAssets: ['favicon.png', 'monochrome_192.png', 'monochrome_512.png'],
       manifest: {
         name: 'QQBoxy',
         short_name: 'QQBoxy',
@@ -28,6 +28,18 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
+          },
+          {
+            src: 'monochrome_192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'monochrome'
+          },
+          {
+            src: 'monochrome_512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'monochrome'
           }
         ]
       }
