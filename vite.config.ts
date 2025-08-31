@@ -11,6 +11,13 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'monochrome_192.png', 'monochrome_512.png'],
+      workbox: {
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [
+          /^\/api(\/|$)/,
+          /^\/auth(\/|$)/,
+        ],
+      },
       manifest: {
         name: 'QQBoxy',
         short_name: 'QQBoxy',
