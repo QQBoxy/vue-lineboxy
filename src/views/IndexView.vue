@@ -22,7 +22,6 @@ onMounted(() => {
     <template v-if="personStore.person.isActive">
       <RouterLink to="/person">Person</RouterLink> |
       <RouterLink to="/kanban">Kanban</RouterLink> |
-      <RouterLink to="/iot">IoT</RouterLink> |
       <a href="/auth/logout">Logout</a>
     </template>
     <template v-else>
