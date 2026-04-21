@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { usePersonStore } from '../stores/person';
 
 const personStore = usePersonStore();
+const route = useRoute();
 
 onMounted(() => {
   axios({
@@ -20,14 +22,22 @@ onMounted(() => {
     <nav class="app-nav">
       <RouterLink class="brand-link" to="/">🏠 LineBoxy</RouterLink>
       <div class="nav-links">
-        <RouterLink class="nav-link" to="/">Home</RouterLink>
+        <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path === '/' }" to="/">
+          Home
+        </RouterLink>
         <template v-if="personStore.person.isActive">
-          <RouterLink class="nav-link" to="/person">Person</RouterLink>
-          <RouterLink class="nav-link" to="/kanban">Kanban</RouterLink>
+          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path === '/person' }" to="/person">
+            Person
+          </RouterLink>
+          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path.startsWith('/kanban') }" to="/kanban">
+            Kanban
+          </RouterLink>
           <a class="nav-link nav-link-logout" href="/auth/logout">Logout</a>
         </template>
         <template v-else>
-          <RouterLink class="nav-link nav-link-login" to="/login">Login</RouterLink>
+          <RouterLink class="nav-link nav-link-login" :class="{ 'nav-link-active': route.path === '/login' }" to="/login">
+            Login
+          </RouterLink>
         </template>
       </div>
     </nav>
@@ -92,7 +102,7 @@ onMounted(() => {
   color: #115e59;
 }
 
-.nav-link.router-link-exact-active {
+.nav-link-active {
   background: #0f766e;
   border-color: #0f766e;
   color: #ffffff;
