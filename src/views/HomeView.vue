@@ -29,9 +29,8 @@ const handleBrightnessChange = async () => {
 <template>
   <main class="home-page">
     <header class="page-header">
-      <h1>🏠 Home ✨</h1>
+      <h1>Home</h1>
     </header>
-
     <template v-if="personStore.person.isActive">
       <section class="control-card">
         <h2>🤖 掃地機器人</h2>
@@ -39,10 +38,7 @@ const handleBrightnessChange = async () => {
           <button class="action-btn" @click="handleClick('vacuum/power/inTopic', 'start')">
             開始清掃
           </button>
-          <button
-            class="action-btn action-btn-outline"
-            @click="handleClick('vacuum/power/inTopic', 'return_to_base')"
-          >
+          <button class="action-btn action-btn-outline" @click="handleClick('vacuum/power/inTopic', 'return_to_base')">
             回充電座
           </button>
         </div>
@@ -78,17 +74,13 @@ const handleBrightnessChange = async () => {
 
         <div class="slider-row">
           <label for="night-light-brightness">亮度 ✨：{{ brightness }}</label>
-          <input
-            id="night-light-brightness"
-            v-model.number="brightness"
-            class="brightness-slider"
-            type="range"
-            min="0"
-            max="255"
-            @change="handleBrightnessChange"
-          />
+          <input id="night-light-brightness" v-model.number="brightness" class="brightness-slider" type="range" min="0"
+            max="255" @change="handleBrightnessChange" />
         </div>
       </section>
+    </template>
+    <template v-else>
+      <p>請先登入</p>
     </template>
   </main>
 </template>
@@ -189,3 +181,4 @@ const handleBrightnessChange = async () => {
   }
 }
 </style>
+
