@@ -18,6 +18,67 @@ interface Card {
 
 const kanbanBoardName = ref('');
 const listName = ref('');
+
+const draggingIndex = ref<number | null>(null);
+const dragOverIndex = ref<number | null>(null);
+
+const handleDragStart = (index: number) => {
+  draggingIndex.value = index;
+};
+
+const handleDragEnter = (index: number) => {
+  dragOverIndex.value = index;
+};
+
+const handleDrop = async (dropIndex: number) => {
+  if (draggingIndex.value === null || draggingIndex.value === dropIndex) {
+    draggingIndex.value = null;
+    dragOverIndex.value = null;
+    return;
+  }
+
+  const oldCards = [...cards.value];
+  const newCards = [...cards.value];
+  const [draggedCard] = newCards.splice(draggingIndex.value, 1);
+  newCards.splice(dropIndex, 0, draggedCard);
+
+  // Re-assign orders
+  const updates = newCards.map((card, idx) => ({
+    id: card.id,
+    order: idx + 1
+  }));
+
+  // Update UI optimistically
+  updates.forEach(({ id, order }) => {
+    const card = cards.value.find(c => c.id === id);
+    if (card) card.order = order;
+  });
+
+  cards.value = newCards;
+
+  draggingIndex.value = null;
+  dragOverIndex.value = null;
+
+  // Filter out updates for cards whose order didn't change
+  const changedUpdates = updates.filter(({ id, order }) => {
+    const oldCard = oldCards.find(c => c.id === id);
+    return oldCard && oldCard.order !== order;
+  });
+
+  // Send updates to server concurrently
+  await Promise.all(changedUpdates.map(update =>
+    axios.patch(`/api/kanban-cards/${update.id}`, { order: update.order })
+  ));
+
+  await getKanbanCards();
+};
+
+
+const handleDragEnd = () => {
+  draggingIndex.value = null;
+  dragOverIndex.value = null;
+};
+
 const cards = ref<Card[]>([]);
 
 const handleCreateKanbanCard = async (data: Record<string, string>) => {
@@ -67,7 +128,7 @@ const getKanbanCards = async () => {
         limit: 999,
       },
     });
-    cards.value = res.data.data;
+    cards.value = res.data.data.sort((a: Card, b: Card) => a.order - b.order);
   } catch (e) {
     console.log(e);
   }
@@ -131,7 +192,15 @@ onMounted(() => {
 
     <section class="control-card">
       <ul v-if="cards.length" class="card-grid">
-        <li v-for="card in cards" :key="card.id" class="card-item">
+        <li v-for="(card, index) in cards" :key="card.id"
+          class="card-item"
+          :class="{ 'is-dragging': draggingIndex === index, 'is-dragover': dragOverIndex === index }"
+          draggable="true"
+          @dragstart="handleDragStart(index)"
+          @dragenter.prevent="handleDragEnter(index)"
+          @dragover.prevent
+          @drop="handleDrop(index)"
+          @dragend="handleDragEnd">
           <div class="card-main">
             <span class="card-order">{{ card.order }}</span>
             <div class="card-copy">
@@ -142,8 +211,8 @@ onMounted(() => {
           <div class="card-actions">
             <ModalView
               class="action-btn-wrap action-btn-wrap-outline"
-              :cols="{ title: 'Kanban Card Title', description: 'Kanban Card Description', order: 'Kanban Card Order' }"
-              :data="{ id: card.id, title: card.title, description: card.description, order: card.order }"
+              :cols="{ title: 'Kanban Card Title', description: 'Kanban Card Description' }"
+              :data="{ id: card.id, title: card.title, description: card.description }"
               @submit="handleEditKanbanCard"
             >
               Edit
@@ -231,6 +300,23 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  cursor: grab;
+  transition: opacity 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.card-item:active {
+  cursor: grabbing;
+}
+
+.card-item.is-dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+
+.card-item.is-dragover {
+  border-style: dashed;
+  border-color: #0f766e;
+  border-width: 2px;
 }
 
 .card-main {
