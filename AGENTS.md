@@ -13,15 +13,15 @@ This repository is a Vue 3 + Vite + TypeScript frontend app.
 - `vite.config.ts`: alias (`@ -> src`), dev proxy, and PWA config.
 
 ## Build, Test, and Development Commands
-Use `yarn` (the repo includes `yarn.lock`).
+Use `pnpm` (the repo includes `pnpm-lock.yaml`).
 
-- `yarn`: install dependencies.
-- `yarn dev`: start Vite dev server with HMR.
-- `yarn build`: run type-check and production build into `dist/`.
-- `yarn build-only`: run only the Vite production build.
-- `yarn preview`: serve the built app locally.
-- `yarn lint`: run ESLint with `--fix` for `.vue/.ts/.js` files.
-- `yarn format`: run Prettier on `src/`.
+- `pnpm install`: install dependencies.
+- `pnpm dev`: start Vite dev server with HMR.
+- `pnpm build`: run type-check and production build into `dist/`.
+- `pnpm build-only`: run only the Vite production build.
+- `pnpm preview`: serve the built app locally.
+- `pnpm lint`: run ESLint with `--fix` for `.vue/.ts/.js` files.
+- `pnpm format`: run Prettier on `src/`.
 
 ## Coding Style & Naming Conventions
 - Formatting: 2-space indentation, semicolons, single quotes, trailing commas, max line width 100 (`.prettierrc.json`).
@@ -31,10 +31,10 @@ Use `yarn` (the repo includes `yarn.lock`).
 - Prefer `@/` imports over long relative paths.
 
 ## Testing Guidelines
-There is currently no test runner or `yarn test` script configured. For now:
+There is currently no test runner or `pnpm test` script configured. For now:
 
-- run `yarn lint` and `yarn build` before opening a PR.
-- validate changed routes/views manually in `yarn dev`.
+- run `pnpm lint` and `pnpm build` before opening a PR.
+- validate changed routes/views manually in `pnpm dev`.
 
 If adding tests, standardize on Vitest + Vue Test Utils and use `*.spec.ts` naming.
 
@@ -42,5 +42,8 @@ If adding tests, standardize on Vitest + Vue Test Utils and use `*.spec.ts` nami
 Recent history uses short, imperative commit subjects (for example `Add PWA support`, `Modify breadcrumb UI`).
 
 - Keep commit titles imperative and scoped to one change.
-- PRs should include: summary, affected routes/components, verification steps, and screenshots for UI changes.
-- Link related issues and note config changes (especially proxy/PWA behavior in `vite.config.ts`).
+- This is a personal project: commit directly to `main`; do not create feature branches unless explicitly requested.
+- Do not push to GitHub automatically. Only push to `main` after the user explicitly says it is OK to push.
+- Pull requests are not required for normal changes.
+- When a PR is explicitly requested, include: summary, affected routes/components, verification steps, and screenshots for UI changes.
+- Link related issues and note config changes when relevant (especially proxy/PWA behavior in `vite.config.ts`).

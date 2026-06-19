@@ -53,6 +53,7 @@ const handleConfirm = () => {
   align-items: center;
   justify-content: center;
   height: 54px;
+  min-width: 54px;
   padding: 0.65rem 0.75rem;
   border-radius: 12px;
   border: 1px solid #dc2626;

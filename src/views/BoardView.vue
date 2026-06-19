@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import ModalView from '../components/ModalView.vue';
 import ConfirmModalView from '../components/ConfirmModalView.vue';
 
 const route = useRoute();
+const router = useRouter();
 
 interface List {
   id: number;
@@ -17,6 +18,14 @@ interface List {
 
 const kanbanBoardName = ref('');
 const kanbanLists = ref<List[]>([]);
+
+const handleOpenList = (id: number, event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (target.closest('a, button')) {
+    return;
+  }
+  router.push(`/kanban/${route.params.id}/${id}`);
+};
 
 const handleCreateKanbanList = async (data: Record<string, string>) => {
   await axios({
@@ -110,7 +119,7 @@ onMounted(() => {
 
     <section class="control-card">
       <ul v-if="kanbanLists.length" class="list-grid">
-        <li v-for="list in kanbanLists" :key="list.id" class="list-item">
+        <li v-for="list in kanbanLists" :key="list.id" class="list-item" @click="handleOpenList(list.id, $event)">
           <RouterLink class="list-link" :to="`/kanban/${route.params.id}/${list.id}`">
             <span class="list-order">{{ list.order }}</span>
             <span class="list-name">{{ list.name }}</span>
@@ -122,7 +131,7 @@ onMounted(() => {
               :data="{ id: list.id, name: list.name, order: list.order }"
               @submit="handleEditKanbanList"
             >
-              Edit
+              ✎
             </ModalView>
             <ConfirmModalView
               title="Delete list?"
@@ -130,7 +139,7 @@ onMounted(() => {
               confirm-text="Confirm Delete"
               @confirmed="handleDeleteKanbanList(list.id)"
             >
-              Delete
+              ×
             </ConfirmModalView>
           </div>
         </li>
@@ -207,6 +216,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  cursor: pointer;
 }
 
 .list-link {
@@ -248,6 +258,7 @@ onMounted(() => {
   display: flex;
   gap: 0.55rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .action-btn-wrap :deep(button) {
@@ -269,6 +280,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 54px;
+  min-width: 54px;
   padding: 0.65rem 0.75rem;
   border-radius: 12px;
   border: 1px solid #0f766e;
@@ -298,5 +310,10 @@ onMounted(() => {
     padding-top: 1.2rem;
   }
 }
-</style>
 
+@media (max-width: 640px) {
+  .list-actions {
+    width: 100%;
+  }
+}
+</style>

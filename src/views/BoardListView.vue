@@ -146,7 +146,7 @@ onMounted(() => {
               :data="{ id: card.id, title: card.title, description: card.description, order: card.order }"
               @submit="handleEditKanbanCard"
             >
-              Edit
+              ✎
             </ModalView>
             <ConfirmModalView
               title="Delete card?"
@@ -154,7 +154,7 @@ onMounted(() => {
               confirm-text="Confirm Delete"
               @confirmed="handleDeleteKanbanCard(card.id)"
             >
-              Delete
+              ×
             </ConfirmModalView>
           </div>
         </li>
@@ -277,6 +277,7 @@ onMounted(() => {
   display: flex;
   gap: 0.55rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .action-btn-wrap :deep(button) {
@@ -298,6 +299,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 54px;
+  min-width: 54px;
   padding: 0.65rem 0.75rem;
   border-radius: 12px;
   border: 1px solid #0f766e;
@@ -327,5 +329,10 @@ onMounted(() => {
     padding-top: 1.2rem;
   }
 }
-</style>
 
+@media (max-width: 640px) {
+  .card-actions {
+    width: 100%;
+  }
+}
+</style>

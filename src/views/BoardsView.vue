@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 import ModalView from '../components/ModalView.vue';
 import ConfirmModalView from '../components/ConfirmModalView.vue';
@@ -12,6 +13,15 @@ interface Board {
 }
 
 const kanbanBoards = ref<Board[]>([]);
+const router = useRouter();
+
+const handleOpenBoard = (id: number, event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (target.closest('a, button')) {
+    return;
+  }
+  router.push(`/kanban/${id}`);
+};
 
 const handleCreateKanbanBoard = async (data: Record<string, string>) => {
   await axios({
@@ -78,7 +88,7 @@ onMounted(() => {
 
     <section class="control-card">
       <ul v-if="kanbanBoards.length" class="board-list">
-        <li v-for="board in kanbanBoards" :key="board.id" class="board-item">
+        <li v-for="board in kanbanBoards" :key="board.id" class="board-item" @click="handleOpenBoard(board.id, $event)">
           <RouterLink class="board-link" :to="`/kanban/${board.id}`">
             {{ board.name }}
           </RouterLink>
@@ -89,7 +99,7 @@ onMounted(() => {
               :data="{ id: board.id, name: board.name }"
               @submit="handleEditKanbanBoard"
             >
-              Edit
+              ✎
             </ModalView>
             <ConfirmModalView
               title="Delete board?"
@@ -97,7 +107,7 @@ onMounted(() => {
               confirm-text="Confirm Delete"
               @confirmed="handleDeleteKanbanBoard(board.id)"
             >
-              Delete
+              ×
             </ConfirmModalView>
           </div>
         </li>
@@ -156,6 +166,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  cursor: pointer;
 }
 
 .board-link {
@@ -181,6 +192,7 @@ onMounted(() => {
   display: flex;
   gap: 0.55rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .action-btn-wrap :deep(button) {
@@ -202,6 +214,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 54px;
+  min-width: 54px;
   padding: 0.65rem 0.75rem;
   border-radius: 12px;
   border: 1px solid #0f766e;
@@ -231,5 +244,10 @@ onMounted(() => {
     padding-top: 1.2rem;
   }
 }
-</style>
 
+@media (max-width: 640px) {
+  .board-actions {
+    width: 100%;
+  }
+}
+</style>
