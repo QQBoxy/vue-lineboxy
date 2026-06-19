@@ -144,6 +144,7 @@ onMounted(() => {
               class="action-btn-wrap action-btn-wrap-outline"
               :cols="{ title: 'Kanban Card Title', description: 'Kanban Card Description', order: 'Kanban Card Order' }"
               :data="{ id: card.id, title: card.title, description: card.description, order: card.order }"
+              trigger-variant="outline"
               @submit="handleEditKanbanCard"
             >
               ✎
@@ -154,7 +155,7 @@ onMounted(() => {
               confirm-text="Confirm Delete"
               @confirmed="handleDeleteKanbanCard(card.id)"
             >
-              ×
+              &times;
             </ConfirmModalView>
           </div>
         </li>

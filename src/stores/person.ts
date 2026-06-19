@@ -7,6 +7,7 @@ interface Person {
   name: string;
   email: string;
   picture: string;
+  lineUserIds: string[];
   role: string;
   isActive: boolean;
   createdAt: string;
@@ -15,14 +16,15 @@ interface Person {
 
 const initPerson = {
   id: 0,
-  googleId: "",
-  name: "",
-  email: "",
-  picture: "",
-  role: "",
+  googleId: '',
+  name: '',
+  email: '',
+  picture: '',
+  lineUserIds: [],
+  role: '',
   isActive: false,
-  createdAt: "",
-  updatedAt: ""
+  createdAt: '',
+  updatedAt: '',
 };
 
 export const usePersonStore = defineStore('person', () => {
@@ -31,8 +33,8 @@ export const usePersonStore = defineStore('person', () => {
   function updatePerson(patch: Partial<Person>) {
     person.value = {
       ...person.value,
-      ...patch
+      ...patch,
     };
   }
   return { updatePerson, person };
-})
+});

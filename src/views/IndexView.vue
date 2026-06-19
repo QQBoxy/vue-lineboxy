@@ -32,7 +32,9 @@ onMounted(() => {
           <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path.startsWith('/kanban') }" to="/kanban">
             Kanban
           </RouterLink>
-          <a class="nav-link nav-link-logout" href="/auth/logout">Logout</a>
+          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path === '/total' }" to="/total">
+            Total
+          </RouterLink>
         </template>
         <template v-else>
           <RouterLink class="nav-link nav-link-login" :class="{ 'nav-link-active': route.path === '/login' }" to="/login">
@@ -113,17 +115,7 @@ onMounted(() => {
   color: #ffffff;
 }
 
-.nav-link-logout {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #475569;
-}
 
-.nav-link-logout:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-  color: #334155;
-}
 
 @media (max-width: 640px) {
   .app-nav {

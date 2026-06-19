@@ -24,6 +24,10 @@ const router = createRouter({
           component: () => import('../views/LogoutView.vue')
         },
         {
+          path: '/total',
+          component: () => import('../views/TotalView.vue')
+        },
+        {
           path: '/kanban',
           component: () => import('../views/BoardsView.vue')
         },

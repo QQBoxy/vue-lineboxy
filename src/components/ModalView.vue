@@ -4,10 +4,13 @@ import { ref } from 'vue';
 interface Props {
   cols: Record<string, string>;
   data?: Record<string, any>;
+  triggerVariant?: 'default' | 'outline';
 }
 
 const visible = ref(false);
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  triggerVariant: 'default',
+});
 const result = ref<Record<string, string>>({});
 const emit = defineEmits(['submit']);
 
@@ -33,11 +36,15 @@ const handleSubmit = () => {
   result.value = {};
   closeModal();
 };
-
 </script>
 
 <template>
-  <button class="modal-trigger-btn" type="button" @click.stop="openModal">
+  <button
+    class="modal-trigger-btn"
+    :class="`modal-trigger-btn-${props.triggerVariant}`"
+    type="button"
+    @click.stop="openModal"
+  >
     <slot></slot>
   </button>
   <teleport to="body">
@@ -82,6 +89,15 @@ const handleSubmit = () => {
 .modal-trigger-btn:hover,
 .action-btn:hover {
   background: #115e59;
+}
+
+.modal-trigger-btn-outline {
+  background: #ffffff;
+  color: #0f766e;
+}
+
+.modal-trigger-btn-outline:hover {
+  background: #ecfeff;
 }
 
 .action-btn-outline {

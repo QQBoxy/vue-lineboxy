@@ -46,7 +46,31 @@ const handleConfirm = () => {
 </template>
 
 <style scoped>
-.confirm-trigger-btn,
+.confirm-trigger-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  min-width: 54px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  touch-action: manipulation;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.confirm-trigger-btn:hover {
+  background: #ffe4e6;
+  border-color: #fb7185;
+}
+
 .action-btn {
   box-sizing: border-box;
   display: inline-flex;
@@ -68,7 +92,6 @@ const handleConfirm = () => {
   transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 
-.confirm-trigger-btn:hover,
 .action-btn:hover {
   background: #b91c1c;
   border-color: #b91c1c;
