@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import axios from 'axios';
 import { usePersonStore } from '@/stores/person';
 
@@ -17,6 +17,7 @@ const chartReady = ref(false);
 const fetchTotals = async () => {
   isLoading.value = true;
   hasError.value = false;
+  chartReady.value = false;
   try {
     const res = await axios.get<MonthTotal[]>('/api/transaction/total');
     totals.value = res.data;
@@ -56,11 +57,21 @@ const getMonthName = (monthNum: number) => {
   return `${monthNum}月`;
 };
 
-onMounted(() => {
-  if (personStore.person.isActive) {
+watch(
+  () => personStore.person.isActive,
+  (isActive) => {
+    if (!isActive) {
+      totals.value = [];
+      isLoading.value = false;
+      hasError.value = false;
+      chartReady.value = false;
+      return;
+    }
+
     fetchTotals();
-  }
-});
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
