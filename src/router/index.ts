@@ -28,6 +28,22 @@ const router = createRouter({
           component: () => import('../views/TotalView.vue')
         },
         {
+          path: '/workout',
+          component: () => import('../views/WorkoutView.vue')
+        },
+        {
+          path: '/workout/import',
+          component: () => import('../views/WorkoutImportView.vue')
+        },
+        {
+          path: '/workout/log',
+          component: () => import('../views/WorkoutLogView.vue')
+        },
+        {
+          path: '/workout/plan/:id',
+          component: () => import('../views/WorkoutPlanView.vue')
+        },
+        {
           path: '/kanban',
           component: () => import('../views/BoardsView.vue')
         },

@@ -35,6 +35,9 @@ onMounted(() => {
           <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path === '/total' }" to="/total">
             Total
           </RouterLink>
+          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path.startsWith('/workout') }" to="/workout">
+            Workout
+          </RouterLink>
         </template>
         <template v-else>
           <RouterLink class="nav-link nav-link-login" :class="{ 'nav-link-active': route.path === '/login' }" to="/login">

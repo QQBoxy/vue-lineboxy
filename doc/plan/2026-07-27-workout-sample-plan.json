@@ -1,0 +1,343 @@
+{
+  "name": "媽媽的無痛減脂與肌力啟動課表",
+  "description": "以椅子運動、墊上核心與極輕量平路飛輪為主，著重建立核心與上肢力量，保護膝蓋與左腳踝。完全避開深蹲、跳躍與爬樓梯。",
+  "effectiveFrom": "2026-07-27",
+  "medicalNotes": [
+    "執行課表期間，若因二尖瓣脫垂出現心悸、胸悶、頭暈，或因膽結石出現右上腹鈍痛，請立即停止運動並採坐姿休息。",
+    "如有持續不適，請務必尋求主治醫師的專業評估。"
+  ],
+  "groups": [
+    {
+      "label": "核心與上肢強化",
+      "weekdays": [1, 3, 5],
+      "requirement": "all",
+      "summary": "著重腹部核心啟動與手臂肌力，完全不給膝蓋與腳踝壓力。",
+      "cautions": [
+        "請準備一張穩固靠牆、不帶輪子的椅子，以及一張瑜珈墊。",
+        "全程避開深蹲、跳躍與爬樓梯動作。"
+      ],
+      "estimatedMinutes": { "min": 30 },
+      "stages": [
+        {
+          "name": "第一階段：熱身",
+          "estimatedMinutes": { "min": 5 },
+          "items": [
+            {
+              "name": "坐姿原地抬腿",
+              "targetMuscles": ["髖關節", "核心"],
+              "equipment": ["穩固椅子"],
+              "steps": [
+                "坐在椅子前半部，背挺直。",
+                "左右腳交替輕輕抬起，膝蓋不超過腰部。",
+                "節奏溫和，喚醒髖關節與核心。"
+              ],
+              "cautions": [],
+              "videoUrl": "",
+              "measureType": "time",
+              "durationSeconds": 120,
+              "specText": "2 分鐘"
+            },
+            {
+              "name": "坐姿雙手繞環",
+              "targetMuscles": ["肩關節"],
+              "equipment": ["穩固椅子"],
+              "steps": [
+                "雙手往兩側平舉。",
+                "順時針慢轉 1.5 分鐘。",
+                "逆時針慢轉 1.5 分鐘。"
+              ],
+              "cautions": [],
+              "videoUrl": "",
+              "measureType": "time",
+              "durationSeconds": 180,
+              "specText": "3 分鐘（順逆時針各 1.5 分鐘）"
+            }
+          ]
+        },
+        {
+          "name": "第二階段：核心與上肢主訓練",
+          "estimatedMinutes": { "min": 20 },
+          "rounds": { "min": 3, "max": 4 },
+          "restBetweenRoundsSeconds": { "min": 60, "max": 120 },
+          "note": "循環訓練：以下四個動作依序做完為 1 組。",
+          "items": [
+            {
+              "name": "坐姿核心收縮",
+              "nameEn": "Seated Vacuums",
+              "targetMuscles": ["深層腹部核心"],
+              "equipment": ["穩固椅子"],
+              "steps": [
+                "坐在椅子上，吸氣時將肚子放鬆挺出。",
+                "吐氣時想像把肚臍往脊椎貼近（縮肚子），維持吐氣 5 秒。",
+                "過程中保持自然呼吸，不憋氣。"
+              ],
+              "cautions": ["全程不憋氣。"],
+              "videoUrl": "",
+              "measureType": "reps",
+              "sets": 1,
+              "reps": { "min": 10 },
+              "specText": "每組 10 次"
+            },
+            {
+              "name": "椅子扶手伏地挺身",
+              "nameEn": "Incline Push-ups",
+              "targetMuscles": ["胸大肌", "手臂", "核心"],
+              "equipment": ["靠牆穩固椅子"],
+              "steps": [
+                "雙手撐在靠牆穩固的椅子扶手或椅緣。",
+                "身體呈一直線，雙腳向後退至舒適角度。",
+                "慢速手肘向斜後方彎曲，胸口靠近椅緣，再慢慢推回。"
+              ],
+              "cautions": ["過程中不聳肩、腰不下塌。"],
+              "videoUrl": "",
+              "measureType": "reps",
+              "sets": 1,
+              "reps": { "min": 8, "max": 12 },
+              "specText": "每組 8-12 次"
+            },
+            {
+              "name": "墊上臀橋",
+              "nameEn": "Glute Bridge",
+              "targetMuscles": ["臀大肌", "後側大腿"],
+              "equipment": ["瑜珈墊"],
+              "steps": [
+                "仰臥在瑜珈墊上，雙腳微彎踩地，與臀同寬。",
+                "吐氣時用臀部力量將臀部往上抬起至身體呈一直線。",
+                "在頂端停留 2 秒，再慢慢放下。"
+              ],
+              "cautions": ["零負重、不壓迫膝蓋關節。"],
+              "videoUrl": "",
+              "measureType": "reps",
+              "sets": 1,
+              "reps": { "min": 12 },
+              "holdSeconds": 2,
+              "specText": "每組 12 次"
+            },
+            {
+              "name": "椅子坐姿拳擊",
+              "nameEn": "Seated Shadow Boxing",
+              "targetMuscles": ["心肺", "肩膀", "手臂"],
+              "equipment": ["穩固椅子"],
+              "steps": [
+                "坐在椅子上，核心收緊，雙手握拳護臉。",
+                "左右交替向前出拳，配合吐氣與收縮腹部。",
+                "速度由慢漸快，保持節奏順暢。"
+              ],
+              "cautions": [],
+              "videoUrl": "",
+              "measureType": "time",
+              "sets": 1,
+              "durationSeconds": 45,
+              "specText": "每組 45 秒"
+            }
+          ]
+        },
+        {
+          "name": "第三階段：伸展收尾",
+          "estimatedMinutes": { "min": 5 },
+          "items": [
+            {
+              "name": "大腿後側伸展（坐姿）",
+              "targetMuscles": ["大腿後側"],
+              "equipment": ["穩固椅子"],
+              "steps": [
+                "坐在椅子上，一腳伸直，腳尖朝上。",
+                "身體微微前傾，不駝背。",
+                "兩邊各維持 30 秒。"
+              ],
+              "cautions": [],
+              "videoUrl": "",
+              "measureType": "hold",
+              "holdSeconds": 30,
+              "perSide": true,
+              "specText": "兩邊各維持 30 秒"
+            },
+            {
+              "name": "胸部與手臂伸展",
+              "targetMuscles": ["胸部", "手臂"],
+              "equipment": ["毛巾（可選）"],
+              "steps": [
+                "雙手在背後十指交扣，或改拉一條毛巾。",
+                "肩膀下沉，胸口向上延伸。",
+                "維持 30 秒。"
+              ],
+              "cautions": [],
+              "videoUrl": "",
+              "measureType": "hold",
+              "holdSeconds": 30,
+              "specText": "維持 30 秒"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "低阻力平路心肺",
+      "weekdays": [2, 4],
+      "requirement": "all",
+      "summary": "穿專屬運動鞋，坐姿，零／極低阻力，保護左腳踝。",
+      "cautions": [
+        "騎乘飛輪時務必穿著室內專屬平底運動鞋。",
+        "嚴禁站姿抽車、嚴禁重踩阻力。",
+        "若左腳踝在騎乘中感覺到任何不適，請立即停止，改到瑜珈墊上做墊上臀橋或椅子坐姿拳擊。"
+      ],
+      "estimatedMinutes": { "min": 30 },
+      "stages": [
+        {
+          "name": "第一階段：準備與熱身",
+          "estimatedMinutes": { "min": 8 },
+          "note": "坐墊高度調整至與骨盆最上方（髂骨）同高，穿上平底運動鞋並繫緊鞋帶。",
+          "items": [
+            {
+              "name": "飛輪坐姿踩踏",
+              "targetMuscles": ["大腿", "臀部", "心肺"],
+              "equipment": ["BH 飛輪", "室內平底運動鞋"],
+              "steps": [
+                "調整坐墊至與髂骨同高，穿上平底運動鞋並繫緊鞋帶。",
+                "阻力設定為 0，以極慢、順暢的節奏踩踏。",
+                "專注用大腿與臀部帶動踏板，避免膝蓋或腳踝過度施力。"
+              ],
+              "cautions": ["嚴禁站姿抽車。"],
+              "videoUrl": "",
+              "measureType": "time",
+              "durationSeconds": 300,
+              "resistance": "0",
+              "specText": "5 分鐘 · 阻力 0"
+            }
+          ]
+        },
+        {
+          "name": "第二階段：平路心肺踩踏",
+          "estimatedMinutes": { "min": 10 },
+          "items": [
+            {
+              "name": "飛輪坐姿踩踏",
+              "equipment": ["BH 飛輪", "室內平底運動鞋"],
+              "targetMuscles": ["大腿", "臀部", "心肺"],
+              "steps": [],
+              "cautions": [],
+              "videoUrl": "",
+              "measureType": "time",
+              "durationSeconds": 600,
+              "resistance": "0 或極低",
+              "specText": "10 分鐘 · 阻力 0 或極低",
+              "note": "保持坐姿，轉速控制在輕鬆、能順暢說話的節奏。"
+            }
+          ]
+        },
+        {
+          "name": "第三階段：椅子上半身肌力",
+          "estimatedMinutes": { "min": 10 },
+          "items": [
+            {
+              "name": "椅子扶手伏地挺身",
+              "steps": [],
+              "cautions": [],
+              "targetMuscles": [],
+              "equipment": [],
+              "videoUrl": "",
+              "measureType": "reps",
+              "sets": 3,
+              "reps": { "min": 10 },
+              "specText": "3 組 × 每組 10 次"
+            },
+            {
+              "name": "椅子坐姿拳擊",
+              "steps": [],
+              "cautions": [],
+              "targetMuscles": [],
+              "equipment": [],
+              "videoUrl": "",
+              "measureType": "time",
+              "sets": 3,
+              "durationSeconds": 45,
+              "specText": "3 組 × 每組 45 秒"
+            }
+          ]
+        },
+        {
+          "name": "第四階段：伸展收尾",
+          "estimatedMinutes": { "min": 2 },
+          "items": [
+            {
+              "name": "腳踝與小腿伸展",
+              "targetMuscles": ["小腿後側", "腳踝"],
+              "equipment": ["牆壁"],
+              "steps": ["面對牆壁做弓箭步。", "重點伸展小腿後側與腳踝關節。", "兩邊各 1 分鐘。"],
+              "cautions": [],
+              "videoUrl": "",
+              "measureType": "hold",
+              "holdSeconds": 60,
+              "perSide": true,
+              "specText": "兩邊各 1 分鐘"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "家庭輕活動／伸展",
+      "weekdays": [6, 7],
+      "requirement": "any-one",
+      "summary": "全家放鬆或進行簡單的關節伸展。",
+      "cautions": [],
+      "estimatedMinutes": { "min": 20, "max": 30 },
+      "stages": []
+    }
+  ],
+  "fallbackRoutines": [
+    {
+      "label": "10 分鐘微型彈性課表",
+      "when": "忙碌日／晚煮飯時，切勿強求做完 30 分鐘",
+      "estimatedMinutes": { "min": 10 },
+      "items": [
+        {
+          "name": "坐姿雙手繞環",
+          "steps": [],
+          "cautions": [],
+          "targetMuscles": [],
+          "equipment": [],
+          "videoUrl": "",
+          "measureType": "time",
+          "durationSeconds": 120,
+          "specText": "2 分鐘"
+        },
+        {
+          "name": "椅子扶手伏地挺身",
+          "steps": [],
+          "cautions": [],
+          "targetMuscles": [],
+          "equipment": [],
+          "videoUrl": "",
+          "measureType": "reps",
+          "sets": 3,
+          "reps": { "min": 10 },
+          "specText": "10 次 × 3 組（組間休息 45 秒）"
+        },
+        {
+          "name": "坐姿核心收縮",
+          "steps": [],
+          "cautions": [],
+          "targetMuscles": [],
+          "equipment": [],
+          "videoUrl": "",
+          "measureType": "reps",
+          "sets": 2,
+          "reps": { "min": 8 },
+          "specText": "8 次 × 2 組"
+        },
+        {
+          "name": "坐姿胸部伸展",
+          "targetMuscles": ["胸部", "肩頸"],
+          "equipment": ["穩固椅子"],
+          "steps": ["坐姿，雙手在背後交扣。", "肩膀下沉，胸口向上延伸。"],
+          "cautions": [],
+          "videoUrl": "",
+          "measureType": "time",
+          "durationSeconds": 120,
+          "specText": "2 分鐘"
+        }
+      ]
+    }
+  ]
+}
