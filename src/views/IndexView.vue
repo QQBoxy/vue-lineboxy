@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { usePersonStore } from '../stores/person';
 
 const personStore = usePersonStore();
 const route = useRoute();
+const router = useRouter();
+const navLinks = ref<HTMLElement | null>(null);
+
+/** 導覽列在手機上可橫向捲動，換頁後把目前頁籤捲進畫面，否則看不出自己在哪 */
+const scrollActiveIntoView = (behavior: ScrollBehavior = 'smooth') => {
+  const active = navLinks.value?.querySelector('.nav-link-active');
+  // block: 'nearest' 必要，否則瀏覽器會連帶把整頁往上捲
+  active?.scrollIntoView({ inline: 'center', block: 'nearest', behavior });
+};
 
 onMounted(() => {
   axios({
@@ -13,15 +22,27 @@ onMounted(() => {
     url: '/api/person',
   }).then((res) => {
     personStore.updatePerson(res.data);
+    // 登入後頁籤才從 1 個變成多個，此時 active 可能在畫面外。
+    // 這不是路由變化，afterEach 不會觸發，需在這裡補捲一次
+    nextTick(() => scrollActiveIntoView('auto'));
   });
+
+  scrollActiveIntoView('auto');
 });
+
+// 事件訂閱而非 watch：afterEach 觸發時 class 尚未套用，故等 nextTick
+const stopAfterEach = router.afterEach(() => {
+  nextTick(() => scrollActiveIntoView());
+});
+
+onBeforeUnmount(stopAfterEach);
 </script>
 
 <template>
   <header class="app-nav-shell">
     <nav class="app-nav">
       <RouterLink class="brand-link" to="/">🏠 LineBoxy</RouterLink>
-      <div class="nav-links">
+      <div ref="navLinks" class="nav-links">
         <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path === '/' }" to="/">
           Home
         </RouterLink>
@@ -40,7 +61,8 @@ onMounted(() => {
           </RouterLink>
         </template>
         <template v-else>
-          <RouterLink class="nav-link nav-link-login" :class="{ 'nav-link-active': route.path === '/login' }" to="/login">
+          <RouterLink class="nav-link nav-link-login" :class="{ 'nav-link-active': route.path === '/login' }"
+            to="/login">
             Login
           </RouterLink>
         </template>
@@ -81,14 +103,30 @@ onMounted(() => {
 
 .nav-links {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.55rem;
+  /* flex item 的 min-width 預設為 auto，不加這行就不會縮到比內容窄，
+     overflow-x 永遠不會生效，整條導覽列反而會撐破卡片 */
+  min-width: 0;
+  overflow-x: auto;
+  /* 捲到底時不要把手勢往外傳，避免觸發 Android 的返回手勢 */
+  overscroll-behavior-x: contain;
+  /* scroll-snap-type: x proximity; */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-links::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  /* scroll-snap-align: start; */
   min-height: 40px;
   padding: 0.45rem 0.8rem;
   border-radius: 10px;
@@ -130,12 +168,22 @@ onMounted(() => {
   }
 
   .nav-links {
-    width: 100%;
-  }
-
-  .nav-link {
     flex: 1 1 auto;
-    text-align: center;
+    width: auto;
+    /* 滿版出血：抵銷 .app-nav 的 padding，讓按鈕從卡片邊緣進出而非停在內縮處 */
+    margin: 0 -0.65rem;
+    padding: 0 0.65rem;
+    /* 兩側淡出，暗示內容還有延伸 */
+    -webkit-mask-image: linear-gradient(to right,
+        transparent 0,
+        #000 0.65rem,
+        #000 calc(100% - 0.65rem),
+        transparent 100%);
+    mask-image: linear-gradient(to right,
+        transparent 0,
+        #000 0.65rem,
+        #000 calc(100% - 0.65rem),
+        transparent 100%);
   }
 }
 </style>
