@@ -9,8 +9,9 @@ import { workoutRepository } from '@/services/workout/localRepository';
 import {
   fallbackToDisplay,
   planToWeekGroups,
-  stagesToDisplay,
+  variantsToDisplay,
   type DisplayStage,
+  type DisplayVariant,
 } from '@/services/workout/display';
 import {
   formatRange,
@@ -27,6 +28,8 @@ const personStore = usePersonStore();
 const plan = ref<WorkoutPlan | null>(null);
 const exercises = ref<ExerciseDef[]>([]);
 const selectedGroupId = ref('');
+/** 空字串 = 尚未選擇，顯示第一個選項 */
+const selectedVariantKey = ref('');
 const selectedItemKey = ref('');
 const isLoading = ref(true);
 const errorMessage = ref('');
@@ -69,9 +72,18 @@ const selectedGroup = computed(
   () => plan.value?.groups.find((group) => group.id === selectedGroupId.value) ?? null,
 );
 
-const displayStages = computed<DisplayStage[]>(() =>
-  selectedGroup.value ? stagesToDisplay(selectedGroup.value.stages, exercises.value) : [],
+const displayVariants = computed<DisplayVariant[]>(() =>
+  selectedGroup.value ? variantsToDisplay(selectedGroup.value.variants, exercises.value) : [],
 );
+
+const selectedVariant = computed<DisplayVariant | null>(
+  () =>
+    displayVariants.value.find((variant) => variant.key === selectedVariantKey.value) ??
+    displayVariants.value[0] ??
+    null,
+);
+
+const displayStages = computed<DisplayStage[]>(() => selectedVariant.value?.stages ?? []);
 
 const fallbackStages = computed<DisplayStage[]>(() =>
   (plan.value?.fallbackRoutines ?? []).map((fallback) =>
@@ -89,6 +101,13 @@ const selectedItem = computed(
 
 const handleSelectGroup = (key: string) => {
   selectedGroupId.value = key;
+  // 換群組時選項也要歸零，否則會停在上一個群組的選項上
+  selectedVariantKey.value = '';
+  selectedItemKey.value = '';
+};
+
+const handleSelectVariant = (key: string) => {
+  selectedVariantKey.value = key;
   selectedItemKey.value = '';
 };
 
@@ -203,11 +222,31 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
 
           <p v-if="selectedGroup.summary" class="group-summary">{{ selectedGroup.summary }}</p>
 
+          <p v-if="!selectedGroup.countsTowardQuota" class="flex-note">
+            這天不列入達成率的分母，有動就是賺到。
+          </p>
+
           <ul v-if="selectedGroup.cautions.length > 0" class="caution-list">
             <li v-for="(caution, index) in selectedGroup.cautions" :key="index">
               ⚠️ {{ caution }}
             </li>
           </ul>
+
+          <div v-if="displayVariants.length > 1" class="variant-row">
+            <button
+              v-for="variant in displayVariants"
+              :key="variant.key"
+              class="variant-btn"
+              :class="{ 'variant-btn-active': variant.key === selectedVariant?.key }"
+              type="button"
+              @click="handleSelectVariant(variant.key)"
+            >
+              <span class="variant-label">{{ variant.label }}</span>
+              <span class="variant-minutes">{{ formatRange(variant.estimatedMinutes, '分') }}</span>
+            </button>
+          </div>
+
+          <p v-if="selectedVariant?.summary" class="group-summary">{{ selectedVariant.summary }}</p>
 
           <StageList :stages="displayStages" @select="handleSelectItem" />
         </section>
@@ -217,9 +256,15 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
           <StageList :stages="fallbackStages" @select="handleSelectItem" />
         </section>
 
-        <section v-if="plan.medicalNotes.length > 0" class="card medical-card">
+        <section
+          v-if="plan.medicalNotes.length > 0 || plan.avoidances.length > 0"
+          class="card medical-card"
+        >
           <h2>健康提醒</h2>
-          <ul>
+          <p v-if="plan.avoidances.length > 0" class="avoidance-line">
+            全程避開：{{ plan.avoidances.join('、') }}
+          </p>
+          <ul v-if="plan.medicalNotes.length > 0">
             <li v-for="(note, index) in plan.medicalNotes" :key="index">{{ note }}</li>
           </ul>
         </section>
@@ -343,6 +388,57 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
   line-height: 1.55;
 }
 
+.flex-note {
+  margin: 0 0 0.6rem;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.variant-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.variant-btn {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-height: 48px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-align: left;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.variant-btn:hover {
+  border-color: #0f766e;
+}
+
+.variant-btn-active {
+  border-color: #0f766e;
+  background: #f0fdfa;
+}
+
+.variant-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.variant-minutes {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
 .caution-list {
   margin: 0 0 0.85rem;
   padding: 0.6rem 0.75rem;
@@ -427,6 +523,17 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
 
 .medical-card {
   background: #f8fafc;
+}
+
+.avoidance-line {
+  margin: 0 0 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #7f1d1d;
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 
 .medical-card ul {

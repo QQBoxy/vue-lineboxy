@@ -165,6 +165,9 @@ const handleImportFile = async (event: Event) => {
               <span v-if="todayGroup.requirement === 'any-one'" class="pick-one-tag">本週擇一</span>
             </p>
             <p v-if="todayGroup.summary" class="today-summary">{{ todayGroup.summary }}</p>
+            <p v-if="todayGroup.variants.length > 1" class="today-variants">
+              二選一：{{ todayGroup.variants.map((variant) => variant.label).join(' 或 ') }}
+            </p>
             <ul v-if="todayGroup.cautions.length > 0" class="caution-list">
               <li v-for="(caution, index) in todayGroup.cautions" :key="index">⚠️ {{ caution }}</li>
             </ul>
@@ -381,6 +384,14 @@ const handleImportFile = async (event: Event) => {
   margin: 0.45rem 0 0;
   font-size: 0.92rem;
   color: #475569;
+  line-height: 1.55;
+}
+
+.today-variants {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f766e;
   line-height: 1.55;
 }
 

@@ -8,6 +8,7 @@ import type {
   IsoWeekday,
   NumRange,
   PlanGroup,
+  PlanVariant,
   WorkoutLog,
   WorkoutPlan,
 } from './types';
@@ -109,6 +110,26 @@ export function mapWeekdaysToGroups(plan: WorkoutPlan | null): Record<IsoWeekday
   return result;
 }
 
+/** 群組是否為當天二擇一 */
+export function hasVariantChoice(group: PlanGroup | null): boolean {
+  return (group?.variants.length ?? 0) > 1;
+}
+
+/**
+ * 取出要呈現／執行的 variant。
+ *
+ * 指定 variantId 時以它為準（打卡紀錄回填用）；找不到或未指定時回傳第一個，
+ * 讓「只有一種內容」與「尚未選擇」都有東西可顯示。
+ */
+export function getVariant(group: PlanGroup | null, variantId?: Id): PlanVariant | null {
+  if (!group || group.variants.length === 0) return null;
+  if (variantId) {
+    const found = group.variants.find((variant) => variant.id === variantId);
+    if (found) return found;
+  }
+  return group.variants[0];
+}
+
 // ---------------------------------------------------------------------------
 // 應運動日與達成率
 // ---------------------------------------------------------------------------
@@ -134,6 +155,9 @@ export interface ExpectedSlot {
  *
  * 跨月週的歸屬規則：'any-one' 群組的週配額，歸屬於「該週內第一個涵蓋日」所在的月份。
  * 例：某週六為 8/31、週日為 9/1，該配額計入 8 月。
+ *
+ * `countsTowardQuota === false` 的群組（NEAT 日）完全不產生配額，
+ * 但這些日子的打卡仍會計入 MonthStats 的 activeDays。
  */
 export function getExpectedSlots(
   plan: WorkoutPlan | null,
@@ -152,6 +176,8 @@ export function getExpectedSlots(
 
     const group = getGroupForDate(plan, date);
     if (!group) return;
+    // NEAT 日本來就不要求完成大課表，放進分母只會讓達成率失真
+    if (!group.countsTowardQuota) return;
 
     if (group.requirement === 'all') {
       slots.push({

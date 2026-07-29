@@ -32,8 +32,11 @@ const totalMinutes = ref<number | null>(null);
 const note = ref('');
 const freeformName = ref('');
 const selectedFallbackId = ref('');
+/** 空字串 = 尚未選擇，視為第一個選項 */
+const selectedVariantId = ref('');
 
 const group = computed(() => getGroupForDate(plan.value, date.value));
+const variants = computed(() => group.value?.variants ?? []);
 const fallbacks = computed(() => plan.value?.fallbackRoutines ?? []);
 const weekdayLabel = computed(() => WEEKDAY_LABELS[isoWeekdayOf(date.value)]);
 const isFuture = computed(() => date.value > today);
@@ -42,10 +45,17 @@ const selectedFallback = computed(
   () => fallbacks.value.find((item) => item.id === selectedFallbackId.value) ?? null,
 );
 
+const selectedVariant = computed(
+  () =>
+    variants.value.find((variant) => variant.id === selectedVariantId.value) ??
+    variants.value[0] ??
+    null,
+);
+
 /** 依來源決定耗時的預設值 */
 const defaultMinutes = computed(() => {
   if (source.value === 'fallback') return selectedFallback.value?.estimatedMinutes.min ?? null;
-  if (source.value === 'group') return group.value?.estimatedMinutes.min ?? null;
+  if (source.value === 'group') return selectedVariant.value?.estimatedMinutes.min ?? null;
   return null;
 });
 
@@ -53,6 +63,7 @@ const applyLogToForm = (log: WorkoutLog | null) => {
   if (!log) {
     source.value = group.value ? 'group' : 'freeform';
     status.value = 'done';
+    selectedVariantId.value = '';
     totalMinutes.value = defaultMinutes.value;
     note.value = '';
     freeformName.value = '';
@@ -65,6 +76,7 @@ const applyLogToForm = (log: WorkoutLog | null) => {
   note.value = log.note ?? '';
   freeformName.value = log.items[0]?.name ?? '';
   selectedFallbackId.value = log.fallbackId ?? '';
+  selectedVariantId.value = log.variantId ?? '';
 };
 
 /** 換日期時整份重載：課表、既有紀錄、表單預設值 */
@@ -101,9 +113,15 @@ const handleSelectFallback = (id: string) => {
   totalMinutes.value = defaultMinutes.value;
 };
 
+const handleSelectVariant = (id: string) => {
+  selectedVariantId.value = id;
+  source.value = 'group';
+  totalMinutes.value = defaultMinutes.value;
+};
+
 const canSave = computed(() => {
   if (isFuture.value || isSaving.value) return false;
-  if (source.value === 'group') return !!group.value;
+  if (source.value === 'group') return !!selectedVariant.value;
   if (source.value === 'fallback') return !!selectedFallback.value;
   return freeformName.value.trim() !== '';
 });
@@ -121,6 +139,7 @@ const handleSave = async () => {
       planVersion: plan.value?.version,
       source: source.value,
       groupId: source.value === 'group' ? group.value?.id : undefined,
+      variantId: source.value === 'group' ? selectedVariant.value?.id : undefined,
       fallbackId: source.value === 'fallback' ? selectedFallbackId.value : undefined,
       status: status.value,
       totalMinutes: totalMinutes.value ?? undefined,
@@ -200,12 +219,28 @@ const handleDelete = async () => {
           <h2>做了什麼</h2>
 
           <div class="option-list">
-            <label v-if="group" class="option-row" :class="{ 'option-active': source === 'group' }">
-              <input v-model="source" type="radio" value="group" @change="handleSourceChange" />
+            <label
+              v-for="variant in variants"
+              :key="variant.id"
+              class="option-row"
+              :class="{
+                'option-active': source === 'group' && selectedVariant?.id === variant.id,
+              }"
+            >
+              <input
+                type="radio"
+                :checked="source === 'group' && selectedVariant?.id === variant.id"
+                @change="handleSelectVariant(variant.id)"
+              />
               <span class="option-main">
-                <span class="option-title">{{ group.label }}</span>
+                <span class="option-title">
+                  {{ variants.length > 1 ? variant.label : group?.label }}
+                </span>
                 <span class="option-sub">
-                  當日課表 · 預計 {{ formatRange(group.estimatedMinutes, '分') }}
+                  當日課表<template v-if="variants.length > 1">
+                    （{{ variants.length }} 選 1）</template
+                  >
+                  · 預計 {{ formatRange(variant.estimatedMinutes, '分') }}
                 </span>
               </span>
             </label>

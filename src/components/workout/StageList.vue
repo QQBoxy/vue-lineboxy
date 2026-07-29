@@ -44,9 +44,15 @@ const handleSelect = (stageKey: string, itemKey: string) => {
         </span>
       </header>
 
-      <div v-if="stage.rounds || stage.restBetweenRoundsSeconds" class="round-row">
+      <div
+        v-if="stage.rounds || stage.restBetweenRoundsSeconds || stage.selection === 'choose-one'"
+        class="round-row"
+      >
         <span v-if="stage.rounds" class="round-badge">
           循環 {{ formatRange(stage.rounds, '組') }}
+        </span>
+        <span v-if="stage.selection === 'choose-one'" class="choose-one-badge">
+          以下擇一即可
         </span>
         <span v-if="stage.restBetweenRoundsSeconds" class="round-rest">
           組間休息 {{ formatRest(stage.restBetweenRoundsSeconds) }}
@@ -123,6 +129,16 @@ const handleSelect = (stageKey: string, itemKey: string) => {
   border-radius: 8px;
   background: #ccfbf1;
   color: #115e59;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* 擇一階段用琥珀色與循環組數區隔，兩者意義相反、不該長得一樣 */
+.choose-one-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #92400e;
   font-size: 0.8rem;
   font-weight: 700;
 }

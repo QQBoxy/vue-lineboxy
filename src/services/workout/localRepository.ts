@@ -1,3 +1,4 @@
+import { migratePlans } from './migrate';
 import type { WorkoutRepository } from './repository';
 import {
   WORKOUT_SCHEMA_VERSION,
@@ -40,6 +41,17 @@ function write(key: string, value: unknown): void {
 /** 深拷貝，避免呼叫端改到儲存層的物件 */
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
+}
+
+/**
+ * 所有讀取課表的入口。舊版格式在此就地升級並回寫，
+ * 讓其餘程式碼永遠只看得到目前版本的形狀。
+ */
+function readPlans(): WorkoutPlan[] {
+  const raw = read<unknown[]>(KEY_PLANS, []);
+  const { plans, changed } = migratePlans(raw);
+  if (changed) write(KEY_PLANS, plans);
+  return plans;
 }
 
 export class LocalWorkoutRepository implements WorkoutRepository {
@@ -89,7 +101,7 @@ export class LocalWorkoutRepository implements WorkoutRepository {
   // --- 課表 ---------------------------------------------------------------
 
   async listPlans(): Promise<WorkoutPlan[]> {
-    const plans = read<WorkoutPlan[]>(KEY_PLANS, []);
+    const plans = readPlans();
     // 生效日新到舊；同日則版次大的在前
     return plans.sort((a, b) =>
       a.effectiveFrom === b.effectiveFrom
@@ -109,7 +121,7 @@ export class LocalWorkoutRepository implements WorkoutRepository {
   }
 
   async savePlan(plan: WorkoutPlan): Promise<WorkoutPlan> {
-    const all = read<WorkoutPlan[]>(KEY_PLANS, []);
+    const all = readPlans();
     const existing = all.find((item) => item.id === plan.id);
 
     if (existing?.locked) {
@@ -124,7 +136,7 @@ export class LocalWorkoutRepository implements WorkoutRepository {
   }
 
   async updateEffectiveFrom(id: Id, effectiveFrom: DateString): Promise<WorkoutPlan> {
-    const all = read<WorkoutPlan[]>(KEY_PLANS, []);
+    const all = readPlans();
     const target = all.find((plan) => plan.id === id);
     if (!target) throw new Error('找不到這份課表。');
 
@@ -168,7 +180,7 @@ export class LocalWorkoutRepository implements WorkoutRepository {
   }
 
   private async lockPlan(planId: Id): Promise<void> {
-    const all = read<WorkoutPlan[]>(KEY_PLANS, []);
+    const all = readPlans();
     const target = all.find((plan) => plan.id === planId);
     if (!target || target.locked) return;
     write(
@@ -193,19 +205,20 @@ export class LocalWorkoutRepository implements WorkoutRepository {
       schemaVersion: WORKOUT_SCHEMA_VERSION,
       exportedAt: new Date().toISOString(),
       exercises: await this.listExercises(),
-      plans: read<WorkoutPlan[]>(KEY_PLANS, []),
+      plans: readPlans(),
       logs: read<WorkoutLog[]>(KEY_LOGS, []),
     };
   }
 
   async importAll(backup: BackupFile): Promise<void> {
-    if (backup.schemaVersion !== WORKOUT_SCHEMA_VERSION) {
+    // 舊版備份檔可以升級後匯入；比目前新的則無從得知未來格式，只能擋下
+    if (backup.schemaVersion > WORKOUT_SCHEMA_VERSION) {
       throw new Error(
-        `備份檔格式版本為 ${backup.schemaVersion}，目前支援 ${WORKOUT_SCHEMA_VERSION}，無法匯入。`,
+        `備份檔格式版本為 ${backup.schemaVersion}，高於目前支援的 ${WORKOUT_SCHEMA_VERSION}，無法匯入。請先更新 app。`,
       );
     }
     write(KEY_EXERCISES, clone(backup.exercises));
-    write(KEY_PLANS, clone(backup.plans));
+    write(KEY_PLANS, migratePlans(clone(backup.plans)).plans);
     write(KEY_LOGS, clone(backup.logs));
   }
 }

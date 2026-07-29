@@ -62,8 +62,17 @@ const handleSelect = (cell: DayCell) => {
 
       <template v-if="cell.group">
         <span class="group-label">{{ cell.group.label }}</span>
+        <span v-if="cell.group.variants.length > 1" class="variant-list">
+          {{ cell.group.variants.map((variant) => variant.label).join(' 或 ') }}
+        </span>
         <span class="group-minutes">{{ formatRange(cell.group.estimatedMinutes, '分') }}</span>
-        <span v-if="cell.group.requirement === 'any-one'" class="pick-one-tag">擇一</span>
+        <span class="tag-row">
+          <span v-if="cell.group.requirement === 'any-one'" class="pick-one-tag">擇一日</span>
+          <span v-if="cell.group.variants.length > 1" class="pick-one-tag">
+            {{ cell.group.variants.length }} 選 1
+          </span>
+          <span v-if="!cell.group.countsTowardQuota" class="flex-tag">彈性</span>
+        </span>
       </template>
       <template v-else>
         <span class="rest-label">休息</span>
@@ -145,11 +154,35 @@ const handleSelect = (cell: DayCell) => {
   font-variant-numeric: tabular-nums;
 }
 
+.variant-list {
+  font-size: 0.74rem;
+  color: #0f766e;
+  line-height: 1.3;
+  opacity: 0.85;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
 .pick-one-tag {
   padding: 0.05rem 0.35rem;
   border-radius: 6px;
   background: #ccfbf1;
   color: #0f766e;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* 不計入應運動日配額的日子（NEAT 日） */
+.flex-tag {
+  padding: 0.05rem 0.35rem;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -184,7 +217,12 @@ const handleSelect = (cell: DayCell) => {
     margin-left: auto;
   }
 
-  .pick-one-tag {
+  .variant-list {
+    /* 手機是單列橫排，選項名稱太長會擠掉時間，改由標籤表達 */
+    display: none;
+  }
+
+  .tag-row {
     margin-left: 0.2rem;
   }
 }

@@ -10,6 +10,7 @@ import type {
   DraftGroup,
   DraftItem,
   DraftStage,
+  DraftVariant,
   ExerciseDraft,
 } from './parsePlan';
 import type {
@@ -20,10 +21,19 @@ import type {
   IsoWeekday,
   MeasureType,
   NumRange,
+  PlanVariant,
   Stage,
   StageItem,
+  StageSelection,
   WorkoutPlan,
 } from './types';
+
+/** 七天總覽所需的最小選項形狀 */
+export interface WeekVariant {
+  key: string;
+  label: string;
+  estimatedMinutes: NumRange;
+}
 
 /** 七天總覽所需的最小群組形狀 */
 export interface WeekGroup {
@@ -32,6 +42,9 @@ export interface WeekGroup {
   weekdays: IsoWeekday[];
   requirement: GroupRequirement;
   estimatedMinutes: NumRange;
+  countsTowardQuota: boolean;
+  /** length > 1 代表當天二擇一 */
+  variants: WeekVariant[];
 }
 
 export interface DisplayItem {
@@ -57,8 +70,19 @@ export interface DisplayStage {
   estimatedMinutes?: NumRange;
   rounds?: NumRange;
   restBetweenRoundsSeconds?: NumRange;
+  /** 'choose-one' → 階段內的動作擇一執行 */
+  selection: StageSelection;
   note?: string;
   items: DisplayItem[];
+}
+
+/** 課表檢視與匯入預覽共用的「當天可選內容」 */
+export interface DisplayVariant {
+  key: string;
+  label: string;
+  summary?: string;
+  estimatedMinutes: NumRange;
+  stages: DisplayStage[];
 }
 
 // --- 已儲存課表 → Display ---------------------------------------------------
@@ -71,6 +95,12 @@ export function planToWeekGroups(plan: WorkoutPlan | null): WeekGroup[] {
     weekdays: group.weekdays,
     requirement: group.requirement,
     estimatedMinutes: group.estimatedMinutes,
+    countsTowardQuota: group.countsTowardQuota,
+    variants: group.variants.map((variant) => ({
+      key: variant.id,
+      label: variant.label,
+      estimatedMinutes: variant.estimatedMinutes,
+    })),
   }));
 }
 
@@ -103,11 +133,25 @@ export function stagesToDisplay(stages: Stage[], exercises: ExerciseDef[]): Disp
       estimatedMinutes: stage.estimatedMinutes,
       rounds: stage.rounds,
       restBetweenRoundsSeconds: stage.restBetweenRoundsSeconds,
+      selection: stage.selection,
       note: stage.note,
       items: [...stage.items]
         .sort((a, b) => a.order - b.order)
         .map((item) => stageItemToDisplay(item, byId)),
     }));
+}
+
+export function variantsToDisplay(
+  variants: PlanVariant[],
+  exercises: ExerciseDef[],
+): DisplayVariant[] {
+  return variants.map((variant) => ({
+    key: variant.id,
+    label: variant.label,
+    summary: variant.summary,
+    estimatedMinutes: variant.estimatedMinutes,
+    stages: stagesToDisplay(variant.stages, exercises),
+  }));
 }
 
 export function fallbackToDisplay(
@@ -119,6 +163,7 @@ export function fallbackToDisplay(
     key: fallback.id,
     name: fallback.label,
     estimatedMinutes: fallback.estimatedMinutes,
+    selection: 'all',
     note: fallback.when,
     items: [...fallback.items]
       .sort((a, b) => a.order - b.order)
@@ -135,6 +180,12 @@ export function draftToWeekGroups(groups: DraftGroup[]): WeekGroup[] {
     weekdays: group.weekdays,
     requirement: group.requirement,
     estimatedMinutes: group.estimatedMinutes,
+    countsTowardQuota: group.countsTowardQuota,
+    variants: group.variants.map((variant) => ({
+      key: `${index}-${variant.order}`,
+      label: variant.label,
+      estimatedMinutes: variant.estimatedMinutes,
+    })),
   }));
 }
 
@@ -172,9 +223,28 @@ export function draftStagesToDisplay(
     estimatedMinutes: stage.estimatedMinutes,
     rounds: stage.rounds,
     restBetweenRoundsSeconds: stage.restBetweenRoundsSeconds,
+    selection: stage.selection,
     note: stage.note,
     items: stage.items.map((item) =>
       draftItemToDisplay(item, byName, `${keyPrefix}-stage-${stage.order}`),
+    ),
+  }));
+}
+
+export function draftVariantsToDisplay(
+  variants: DraftVariant[],
+  exercises: ExerciseDraft[],
+  keyPrefix: string,
+): DisplayVariant[] {
+  return variants.map((variant) => ({
+    key: `${keyPrefix}-variant-${variant.order}`,
+    label: variant.label,
+    summary: variant.summary,
+    estimatedMinutes: variant.estimatedMinutes,
+    stages: draftStagesToDisplay(
+      variant.stages,
+      exercises,
+      `${keyPrefix}-variant-${variant.order}`,
     ),
   }));
 }
@@ -189,6 +259,7 @@ export function draftFallbackToDisplay(
     key: keyPrefix,
     name: fallback.label,
     estimatedMinutes: fallback.estimatedMinutes,
+    selection: 'all',
     note: fallback.when,
     items: fallback.items.map((item) => draftItemToDisplay(item, byName, keyPrefix)),
   };

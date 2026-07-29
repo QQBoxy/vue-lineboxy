@@ -10,9 +10,10 @@ import { workoutRepository } from '@/services/workout/localRepository';
 import { commitDraftPlan, parsePlanJson, type ParseResult } from '@/services/workout/parsePlan';
 import {
   draftFallbackToDisplay,
-  draftStagesToDisplay,
   draftToWeekGroups,
+  draftVariantsToDisplay,
   type DisplayStage,
+  type DisplayVariant,
 } from '@/services/workout/display';
 import { formatRange, formatWeekdays } from '@/services/workout/schedule';
 import type { ExerciseDef, WorkoutPlan } from '@/services/workout/types';
@@ -23,14 +24,23 @@ const PROMPT_TEMPLATE = `請依下列 JSON schema 輸出運動課表，只輸出
 - weekdays 用 1=週一 … 7=週日
 - 若某幾天是「擇一進行」（例如「週六或週日」），該群組設 requirement:"any-one"，否則 "all"
 - 各群組的 weekdays 不可重疊；未列出的日子視為休息日
+- 同一天若有兩種可選內容（例如「跳舞 或 飛輪」），請用 variants 列出各選項；
+  只有一種內容時直接給 stages 即可，不必包 variants
+- 某一天若只是「日常活動、不強求完成課表」（例如備料煮飯日），
+  該群組設 countsTowardQuota:false，它就不會列入達成率的分母
+- 單一階段內若是「擇一執行」（例如兩個動作挑一個做），該階段設 selection:"choose-one"
 - 每個動作都要有 steps（條列步驟）、specText（規格原文）、
   以及 measureType（reps 次數型 / time 時間型 / hold 持續型）
+- 「循環 N 組」請放在階段的 rounds，動作的「每組 M 次」放 reps，
+  此時動作的 sets 請留空，否則會被重複計算成 N×sets
+- durationSeconds 是範圍物件；「10-15 分鐘」寫成 { "min": 600, "max": 900 }
 - 防護與注意事項分兩層：群組層放 cautions，動作層也放 cautions
+- 全課表要避開的動作（例如深蹲、跳躍）請列在最外層的 avoidances
 - 忙碌日的替代方案請放在 fallbackRoutines
 - 每個動作請附一則 YouTube 參考影片連結（videoUrl），找不到則留空字串
 - 每個動作請列出所需 equipment（器材）
 - 相同的動作在不同群組請使用完全一致的名稱
-- 請確認各階段 estimatedMinutes 加總等於群組宣稱的 estimatedMinutes
+- 請確認各階段 estimatedMinutes 加總等於該選項宣稱的 estimatedMinutes
 
 Schema：
 {
@@ -38,38 +48,47 @@ Schema：
   "description": "一段整體說明",
   "effectiveFrom": "YYYY-MM-DD",
   "medicalNotes": ["醫療免責或健康提醒"],
+  "avoidances": ["深蹲", "跳躍", "爬樓梯"],
   "groups": [
     {
       "label": "群組名稱，例如 核心與上肢強化",
       "weekdays": [1, 3, 5],
       "requirement": "all",
+      "countsTowardQuota": true,
       "summary": "主要內容與防護重點一句話",
       "cautions": ["群組層防護重點"],
       "estimatedMinutes": { "min": 30 },
-      "stages": [
+      "variants": [
         {
-          "name": "第一階段：熱身",
-          "estimatedMinutes": { "min": 5 },
-          "rounds": { "min": 3, "max": 4 },
-          "restBetweenRoundsSeconds": { "min": 60, "max": 120 },
-          "note": "循環訓練說明（沒有就省略）",
-          "items": [
+          "label": "選項名稱，例如 完整版 20 分鐘",
+          "summary": "這個選項的一句話說明（沒有就省略）",
+          "estimatedMinutes": { "min": 20 },
+          "stages": [
             {
-              "name": "動作名稱",
-              "nameEn": "English Name",
-              "targetMuscles": ["訓練部位"],
-              "equipment": ["所需器材"],
-              "steps": ["步驟一", "步驟二"],
-              "cautions": ["動作層注意事項"],
-              "videoUrl": "",
-              "measureType": "reps",
-              "sets": 3,
-              "reps": { "min": 8, "max": 12 },
-              "durationSeconds": 45,
-              "holdSeconds": 2,
-              "perSide": false,
-              "resistance": "0",
-              "specText": "每組 8-12 次"
+              "name": "第一階段：熱身",
+              "estimatedMinutes": { "min": 5 },
+              "rounds": { "min": 3, "max": 4 },
+              "restBetweenRoundsSeconds": { "min": 60, "max": 120 },
+              "selection": "all",
+              "note": "循環訓練說明（沒有就省略）",
+              "items": [
+                {
+                  "name": "動作名稱",
+                  "nameEn": "English Name",
+                  "targetMuscles": ["訓練部位"],
+                  "equipment": ["所需器材"],
+                  "steps": ["步驟一", "步驟二"],
+                  "cautions": ["動作層注意事項"],
+                  "videoUrl": "",
+                  "measureType": "reps",
+                  "reps": { "min": 8, "max": 12 },
+                  "durationSeconds": { "min": 45 },
+                  "holdSeconds": 2,
+                  "perSide": false,
+                  "resistance": "0",
+                  "specText": "每組 8-12 次"
+                }
+              ]
             }
           ]
         }
@@ -96,6 +115,8 @@ const result = ref<ParseResult | null>(null);
 const existingPlans = ref<WorkoutPlan[]>([]);
 const existingExercises = ref<ExerciseDef[]>([]);
 const selectedGroupIndex = ref(0);
+/** 空字串 = 尚未選擇，顯示第一個選項 */
+const selectedVariantKey = ref('');
 const selectedItemKey = ref('');
 const aliases = ref<Record<string, string>>({});
 const showPrompt = ref(false);
@@ -141,15 +162,24 @@ const weekGroups = computed(() => draftToWeekGroups(draftGroups.value));
 
 const selectedGroup = computed(() => draftGroups.value[selectedGroupIndex.value] ?? null);
 
-const displayStages = computed<DisplayStage[]>(() =>
+const displayVariants = computed<DisplayVariant[]>(() =>
   selectedGroup.value && result.value
-    ? draftStagesToDisplay(
-        selectedGroup.value.stages,
+    ? draftVariantsToDisplay(
+        selectedGroup.value.variants,
         result.value.exercises,
         `g${selectedGroupIndex.value}`,
       )
     : [],
 );
+
+const selectedVariant = computed<DisplayVariant | null>(
+  () =>
+    displayVariants.value.find((variant) => variant.key === selectedVariantKey.value) ??
+    displayVariants.value[0] ??
+    null,
+);
+
+const displayStages = computed<DisplayStage[]>(() => selectedVariant.value?.stages ?? []);
 
 const fallbackStages = computed<DisplayStage[]>(() =>
   result.value?.plan
@@ -181,6 +211,13 @@ const similarMatches = computed(
 
 const handleSelectGroup = (key: string) => {
   selectedGroupIndex.value = Number(key);
+  // 換群組時選項也要歸零，否則會停在上一個群組的選項上
+  selectedVariantKey.value = '';
+  selectedItemKey.value = '';
+};
+
+const handleSelectVariant = (key: string) => {
+  selectedVariantKey.value = key;
   selectedItemKey.value = '';
 };
 
@@ -274,11 +311,35 @@ const handleCommit = async () => {
                 </span>
               </header>
               <p v-if="selectedGroup.summary" class="group-summary">{{ selectedGroup.summary }}</p>
+              <p v-if="!selectedGroup.countsTowardQuota" class="hint">
+                這天不列入達成率的分母（countsTowardQuota:false）。
+              </p>
               <ul v-if="selectedGroup.cautions.length > 0" class="caution-list">
                 <li v-for="(caution, index) in selectedGroup.cautions" :key="index">
                   ⚠️ {{ caution }}
                 </li>
               </ul>
+
+              <div v-if="displayVariants.length > 1" class="variant-row">
+                <button
+                  v-for="variant in displayVariants"
+                  :key="variant.key"
+                  class="variant-btn"
+                  :class="{ 'variant-btn-active': variant.key === selectedVariant?.key }"
+                  type="button"
+                  @click="handleSelectVariant(variant.key)"
+                >
+                  <span class="variant-label">{{ variant.label }}</span>
+                  <span class="variant-minutes">
+                    {{ formatRange(variant.estimatedMinutes, '分') }}
+                  </span>
+                </button>
+              </div>
+
+              <p v-if="selectedVariant?.summary" class="group-summary">
+                {{ selectedVariant.summary }}
+              </p>
+
               <StageList :stages="displayStages" @select="selectedItemKey = $event" />
             </div>
 
@@ -548,6 +609,51 @@ const handleCommit = async () => {
   font-size: 0.9rem;
   color: #475569;
   line-height: 1.55;
+}
+
+.variant-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.variant-btn {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-height: 48px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-align: left;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.variant-btn:hover {
+  border-color: #0f766e;
+}
+
+.variant-btn-active {
+  border-color: #0f766e;
+  background: #f0fdfa;
+}
+
+.variant-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.variant-minutes {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
 }
 
 .caution-list {

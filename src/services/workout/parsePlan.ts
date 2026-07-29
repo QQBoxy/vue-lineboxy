@@ -15,8 +15,10 @@ import {
   type MeasureType,
   type NumRange,
   type PlanGroup,
+  type PlanVariant,
   type Stage,
   type StageItem,
+  type StageSelection,
   type WorkoutPlan,
 } from './types';
 
@@ -40,7 +42,7 @@ export interface DraftItem {
   measureType: MeasureType;
   sets?: number;
   reps?: NumRange;
-  durationSeconds?: number;
+  durationSeconds?: NumRange;
   holdSeconds?: number;
   perSide?: boolean;
   resistance?: string;
@@ -55,8 +57,17 @@ export interface DraftStage {
   estimatedMinutes?: NumRange;
   rounds?: NumRange;
   restBetweenRoundsSeconds?: NumRange;
+  selection: StageSelection;
   note?: string;
   items: DraftItem[];
+}
+
+export interface DraftVariant {
+  order: number;
+  label: string;
+  summary?: string;
+  estimatedMinutes: NumRange;
+  stages: DraftStage[];
 }
 
 export interface DraftGroup {
@@ -66,7 +77,8 @@ export interface DraftGroup {
   summary?: string;
   cautions: string[];
   estimatedMinutes: NumRange;
-  stages: DraftStage[];
+  countsTowardQuota: boolean;
+  variants: DraftVariant[];
 }
 
 export interface DraftFallback {
@@ -83,6 +95,7 @@ export interface DraftPlan {
   groups: DraftGroup[];
   fallbackRoutines: DraftFallback[];
   medicalNotes: string[];
+  avoidances: string[];
   sourceText: string;
 }
 
@@ -247,23 +260,27 @@ export function parsePlanJson(text: string, context: ParseContext): ParseResult 
       errors.push({ path: `${path}.estimatedMinutes`, message: '缺少預計耗時 estimatedMinutes。' });
     }
 
-    const stages = parseStages(rawGroup.stages, path, errors, warnings, exercises);
-    if (stages.length === 0) {
-      warnings.push({
-        path: `${path}.stages`,
-        message: `群組「${label ?? path}」沒有任何階段內容，將僅顯示描述。`,
-      });
-    }
-    checkStageMinutes(stages, estimatedMinutes, label ?? path, path, warnings);
+    const groupLabel = label ?? `群組 ${groupIndex + 1}`;
+    const variants = parseVariants(
+      rawGroup,
+      groupLabel,
+      estimatedMinutes,
+      path,
+      errors,
+      warnings,
+      exercises,
+    );
 
     groups.push({
-      label: label ?? `群組 ${groupIndex + 1}`,
+      label: groupLabel,
       weekdays,
       requirement,
       summary: readString(rawGroup, 'summary'),
       cautions: readStringArray(rawGroup, 'cautions'),
       estimatedMinutes: estimatedMinutes ?? { min: 0 },
-      stages,
+      // 未指定時預設計入配額；NEAT 日要自行標記 false
+      countsTowardQuota: readBoolean(rawGroup, 'countsTowardQuota') ?? true,
+      variants,
     });
   });
 
@@ -296,8 +313,10 @@ export function parsePlanJson(text: string, context: ParseContext): ParseResult 
 
   checkEffectiveFrom(effectiveFrom, context.existingPlans, warnings);
 
+  const avoidances = readStringArray(root, 'avoidances');
   const exerciseList = [...exercises.values()];
   checkExerciseDetails(exerciseList, warnings);
+  checkAvoidances(exerciseList, avoidances, warnings);
   const matches = matchExercises(exerciseList, context.existingExercises);
 
   return {
@@ -313,6 +332,7 @@ export function parsePlanJson(text: string, context: ParseContext): ParseResult 
             groups,
             fallbackRoutines,
             medicalNotes: readStringArray(root, 'medicalNotes'),
+            avoidances,
             sourceText: text,
           }
         : undefined,
@@ -374,6 +394,91 @@ function parseRequirement(
   return requirement;
 }
 
+/**
+ * 群組的可選內容。
+ *
+ * 接受兩種寫法：`variants: [...]`（同日二擇一），
+ * 或直接給 `stages: [...]`（只有一種內容，自動包成單一 variant）。
+ * 後者讓單一內容的日子不必為了格式多包一層。
+ */
+function parseVariants(
+  rawGroup: Raw,
+  groupLabel: string,
+  groupMinutes: NumRange | undefined,
+  path: string,
+  errors: Issue[],
+  warnings: Issue[],
+  exercises: Map<string, ExerciseDraft>,
+): DraftVariant[] {
+  const rawVariants = Array.isArray(rawGroup.variants) ? rawGroup.variants : null;
+
+  if (!rawVariants) {
+    const stages = parseStages(rawGroup.stages, path, errors, warnings, exercises);
+    if (stages.length === 0) {
+      warnings.push({
+        path: `${path}.stages`,
+        message: `群組「${groupLabel}」沒有任何階段內容，將僅顯示描述。`,
+      });
+    }
+    checkStageMinutes(stages, groupMinutes, groupLabel, path, warnings);
+    return [
+      {
+        order: 1,
+        label: groupLabel,
+        summary: readString(rawGroup, 'summary'),
+        estimatedMinutes: groupMinutes ?? { min: 0 },
+        stages,
+      },
+    ];
+  }
+
+  if (rawVariants.length === 0) {
+    errors.push({ path: `${path}.variants`, message: 'variants 不可為空陣列。' });
+    return [];
+  }
+
+  const variants: DraftVariant[] = [];
+  rawVariants.forEach((rawVariant, index) => {
+    const variantPath = `${path}.variants[${index}]`;
+    if (!isObject(rawVariant)) {
+      errors.push({ path: variantPath, message: '選項必須是物件。' });
+      return;
+    }
+
+    const label = readString(rawVariant, 'label');
+    if (!label) errors.push({ path: `${variantPath}.label`, message: '缺少選項名稱 label。' });
+
+    const estimatedMinutes = readRange(rawVariant, 'estimatedMinutes');
+    if (!estimatedMinutes) {
+      errors.push({
+        path: `${variantPath}.estimatedMinutes`,
+        message: '缺少預計耗時 estimatedMinutes。',
+      });
+    }
+
+    const variantLabel = label ?? `選項 ${index + 1}`;
+    const stages = parseStages(rawVariant.stages, variantPath, errors, warnings, exercises);
+    if (stages.length === 0) {
+      warnings.push({
+        path: `${variantPath}.stages`,
+        message: `選項「${variantLabel}」沒有任何階段內容，將僅顯示描述。`,
+      });
+    }
+    checkStageMinutes(stages, estimatedMinutes, variantLabel, variantPath, warnings);
+
+    variants.push({
+      order: index + 1,
+      label: variantLabel,
+      summary: readString(rawVariant, 'summary'),
+      estimatedMinutes: estimatedMinutes ?? { min: 0 },
+      stages,
+    });
+  });
+
+  checkVariantMinutes(variants, groupMinutes, groupLabel, path, warnings);
+  return variants;
+}
+
 function parseStages(
   value: unknown,
   parentPath: string,
@@ -391,17 +496,44 @@ function parseStages(
     }
     const stageName = readString(rawStage, 'name');
     if (!stageName) errors.push({ path: `${path}.name`, message: '缺少階段名稱 name。' });
+    const items = parseItems(rawStage.items, path, errors, warnings, exercises);
+    const selection = parseSelection(rawStage, path, warnings, items.length);
+
     stages.push({
       order: index + 1,
       name: stageName ?? `第 ${index + 1} 階段`,
       estimatedMinutes: readRange(rawStage, 'estimatedMinutes'),
       rounds: readRange(rawStage, 'rounds'),
       restBetweenRoundsSeconds: readRange(rawStage, 'restBetweenRoundsSeconds'),
+      selection,
       note: readString(rawStage, 'note'),
-      items: parseItems(rawStage.items, path, errors, warnings, exercises),
+      items,
     });
   });
   return stages;
+}
+
+function parseSelection(
+  rawStage: Raw,
+  path: string,
+  warnings: Issue[],
+  itemCount: number,
+): StageSelection {
+  const value = readString(rawStage, 'selection');
+  if (value !== undefined && value !== 'all' && value !== 'choose-one') {
+    warnings.push({
+      path: `${path}.selection`,
+      message: `selection 只接受 "all" 或 "choose-one"，收到「${value}」，已視為 "all"。`,
+    });
+    return 'all';
+  }
+  if (value === 'choose-one' && itemCount < 2) {
+    warnings.push({
+      path: `${path}.selection`,
+      message: '設為 choose-one（擇一）但只有一個動作，設定沒有意義。',
+    });
+  }
+  return value === 'choose-one' ? 'choose-one' : 'all';
 }
 
 function parseItems(
@@ -466,7 +598,7 @@ function parseItems(
       measureType,
       sets: readNumber(rawItem, 'sets'),
       reps: readRange(rawItem, 'reps'),
-      durationSeconds: readNumber(rawItem, 'durationSeconds'),
+      durationSeconds: readRange(rawItem, 'durationSeconds'),
       holdSeconds: readNumber(rawItem, 'holdSeconds'),
       perSide: readBoolean(rawItem, 'perSide'),
       resistance: readString(rawItem, 'resistance'),
@@ -554,6 +686,63 @@ function checkStageMinutes(
 
 function formatSum(min: number, max: number): string {
   return min === max ? String(min) : `${min}–${max}`;
+}
+
+/**
+ * 二擇一的群組，宣稱時長應涵蓋各選項的範圍。
+ * 例：15 分鐘與 5 分鐘兩個選項，群組應宣稱 5–15 分。
+ */
+function checkVariantMinutes(
+  variants: DraftVariant[],
+  declared: NumRange | undefined,
+  label: string,
+  path: string,
+  warnings: Issue[],
+): void {
+  if (!declared || variants.length < 2) return;
+
+  const spanMin = Math.min(...variants.map((variant) => variant.estimatedMinutes.min));
+  const spanMax = Math.max(
+    ...variants.map((variant) => variant.estimatedMinutes.max ?? variant.estimatedMinutes.min),
+  );
+  const declaredMin = declared.min;
+  const declaredMax = declared.max ?? declared.min;
+
+  if (spanMin >= declaredMin && spanMax <= declaredMax) return;
+
+  warnings.push({
+    path: `${path}.estimatedMinutes`,
+    message: `「${label}」各選項耗時介於 ${formatSum(spanMin, spanMax)} 分，超出群組宣稱的 ${formatSum(
+      declaredMin,
+      declaredMax,
+    )} 分，請確認原始課表。`,
+  });
+}
+
+/**
+ * 禁忌動作掃描。
+ * AI 重出課表時最容易悄悄把被排除的動作放回來，靠人眼很難每次都抓到。
+ */
+function checkAvoidances(
+  drafts: ExerciseDraft[],
+  avoidances: string[],
+  warnings: Issue[],
+): void {
+  if (avoidances.length === 0) return;
+
+  avoidances.forEach((word) => {
+    const hits = drafts
+      .filter(
+        (draft) =>
+          draft.name.includes(word) || draft.steps.some((step) => step.includes(word)),
+      )
+      .map((draft) => draft.name);
+    if (hits.length === 0) return;
+    warnings.push({
+      path: '禁忌動作',
+      message: `課表宣告避開「${word}」，但 ${hits.join('、')} 的名稱或步驟提到了它，請人工確認。`,
+    });
+  });
 }
 
 function checkEffectiveFrom(
@@ -682,6 +871,18 @@ export async function commitDraftPlan(
       .filter((plan) => plan.name === draft.name)
       .reduce((max, plan) => Math.max(max, plan.version), 0) + 1;
 
+  const resolveStage = (stage: DraftStage): Stage => ({
+    id: newId(),
+    order: stage.order,
+    name: stage.name,
+    estimatedMinutes: stage.estimatedMinutes,
+    rounds: stage.rounds,
+    restBetweenRoundsSeconds: stage.restBetweenRoundsSeconds,
+    selection: stage.selection,
+    note: stage.note,
+    items: stage.items.map(resolveItem),
+  });
+
   const groups: PlanGroup[] = draft.groups.map((group) => ({
     id: newId(),
     label: group.label,
@@ -690,16 +891,14 @@ export async function commitDraftPlan(
     summary: group.summary,
     cautions: group.cautions,
     estimatedMinutes: group.estimatedMinutes,
-    stages: group.stages.map(
-      (stage): Stage => ({
+    countsTowardQuota: group.countsTowardQuota,
+    variants: group.variants.map(
+      (variant): PlanVariant => ({
         id: newId(),
-        order: stage.order,
-        name: stage.name,
-        estimatedMinutes: stage.estimatedMinutes,
-        rounds: stage.rounds,
-        restBetweenRoundsSeconds: stage.restBetweenRoundsSeconds,
-        note: stage.note,
-        items: stage.items.map(resolveItem),
+        label: variant.label,
+        summary: variant.summary,
+        estimatedMinutes: variant.estimatedMinutes,
+        stages: variant.stages.map(resolveStage),
       }),
     ),
   }));
@@ -722,6 +921,7 @@ export async function commitDraftPlan(
     groups,
     fallbackRoutines,
     medicalNotes: draft.medicalNotes,
+    avoidances: draft.avoidances,
     sourceText: draft.sourceText,
     locked: false,
     createdAt: new Date().toISOString(),
