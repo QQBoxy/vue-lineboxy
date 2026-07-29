@@ -5,7 +5,7 @@
 > 最後更新：2026-07-30（批次 A 驗收完成、彈窗捲動鎖定與 Esc 關閉完成）
 > 用途：**交付給新的 session 接手**。本文件力求自足，接手者不需要前面的對話脈絡。
 > 前置文件：[done/2026-07-27-workout-feature-batch-a.md](done/2026-07-27-workout-feature-batch-a.md)（批次 A 的完整設計與驗證紀錄）
-> 相關文件：[2026-07-30-modal-scroll-lock-esc.md](2026-07-30-modal-scroll-lock-esc.md)（彈窗捲動鎖定與 Esc 關閉）
+> 相關文件：[done/2026-07-30-modal-scroll-lock-esc.md](done/2026-07-30-modal-scroll-lock-esc.md)（彈窗捲動鎖定與 Esc 關閉）
 
 ---
 
@@ -16,7 +16,7 @@
 | 語言 | **一律使用正體中文**與使用者溝通 |
 | 改動前先討論 | **未經同意不要動 code**。收到需求先提建議與釐清問題，使用者說「實作吧」再動手 |
 | Vue 寫法 | **非必要不使用 `watch` / `watchEffect`**。優先序：`computed` → 事件處理函式中明確呼叫 → `v-if` 控制掛載搭配 `onMounted` → 真的需要副作用才用 `watch` |
-| 計畫文件 | 放 `doc/plan/`，檔名 `YYYY-MM-DD-topic.md` |
+| 計畫文件 | 放 `doc/plan/`，檔名 `YYYY-MM-DD-topic.md`。**完成並驗收後移到 `doc/plan/done/`**，同時把標頭的「狀態」改成已完成並註明對應 commit。`doc/plan/` 根目錄只留進行中的計畫 |
 | commit | 主旨用英文、祈使句，沿用近期歷史風格（`feat:` / `fix:`）。**不要自動 push** |
 
 `src/views/TotalView.vue` 是採用 `watch` 的舊寫法，**新程式碼不要沿用**。
@@ -41,7 +41,7 @@
 |---|---|
 | `09cf6d9` | 運動計畫功能批次 A + 補登舊紀錄 |
 | `162a8dd` | 導覽列改為單行橫向捲動 + active 頁籤自動捲入 |
-| 未提交 | 彈窗捲動鎖定與 Esc 關閉（2026-07-30，已通過驗收，等待 commit） |
+| `e86eec5` | 彈窗捲動鎖定與 Esc 關閉（三個彈窗共用 `modalStack`） |
 
 分支 `main`。remote 是 `QQBoxy/vue-lineboxy`，使用者的 GitHub 帳號 `NekoBoxy` 已取得
 collaborator 權限，可直接 push 到 `main`。**但仍不要自動 push，等使用者明確指示。**
@@ -206,7 +206,7 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
 （使用者決定保留，方便日後回頭比較）。focus 外框沒有被裁切，不需要 `padding-block` 補償。
 
 **彈窗捲動鎖定與 Esc 關閉：通過。** 見
-[2026-07-30-modal-scroll-lock-esc.md](2026-07-30-modal-scroll-lock-esc.md) §5 的八項。
+[done/2026-07-30-modal-scroll-lock-esc.md](done/2026-07-30-modal-scroll-lock-esc.md) §5 的八項。
 
 ---
 
@@ -302,7 +302,8 @@ Google 已宣布淘汰 Fit 的 REST API、改推 Android 的 Health Connect，
 
 §6 的人工驗收已於 2026-07-30 全數完成，接下來：
 
-1. 把彈窗那批改動 commit（**等使用者明確指示才 push**）
-2. 做 **批次 B**，功能完整後才知道真正需要同步什麼。
+1. 做 **批次 B**，功能完整後才知道真正需要同步什麼。
    起手處是 `WorkoutLogView.vue` 與動作層注意事項的顯示（見 §6）
-3. Drive 備份可視使用者對資料遺失的擔憂程度隨時插隊
+2. Drive 備份可視使用者對資料遺失的擔憂程度隨時插隊
+
+`main` 上的改動都還**沒有 push**，等使用者明確指示。

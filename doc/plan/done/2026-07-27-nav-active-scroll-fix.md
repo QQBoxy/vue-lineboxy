@@ -1,6 +1,6 @@
 # 修正：登入後 active 頁籤未捲入畫面
 
-> 狀態：待確認
+> 狀態：**已完成**（實作於 `162a8dd`，2026-07-30 人工驗收通過）
 > 建立日期：2026-07-27
 > 範圍：只改 `src/views/IndexView.vue`（script 3 行）
 > 前置：[2026-07-27-nav-horizontal-scroll.md](2026-07-27-nav-horizontal-scroll.md)
