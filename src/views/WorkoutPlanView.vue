@@ -225,6 +225,7 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
         </section>
 
         <ExerciseDetail
+          v-if="selectedItem"
           :item="selectedItem"
           @close="handleCloseDetail"
           @update-video="handleUpdateVideo"

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import type { DisplayItem } from '@/services/workout/display';
+import { popModal, pushModal } from '@/utils/modalStack';
 
 interface Props {
-  item: DisplayItem | null;
+  item: DisplayItem;
 }
 
 const props = defineProps<Props>();
@@ -16,7 +17,7 @@ const editingVideo = ref(false);
 const videoInput = ref('');
 
 const startEditVideo = () => {
-  videoInput.value = props.item?.videoUrl ?? '';
+  videoInput.value = props.item.videoUrl ?? '';
   editingVideo.value = true;
 };
 
@@ -25,20 +26,33 @@ const cancelEditVideo = () => {
 };
 
 const submitVideo = () => {
-  if (!props.item?.exerciseId) return;
+  if (!props.item.exerciseId) return;
   emit('update-video', props.item.exerciseId, videoInput.value.trim());
   editingVideo.value = false;
 };
 
 const handleClose = () => {
-  editingVideo.value = false;
   emit('close');
 };
+
+/** 編輯影片連結時，Esc 先取消編輯，避免打了一半的網址被一鍵清掉 */
+const handleEscape = () => {
+  if (editingVideo.value) {
+    cancelEditVideo();
+    return;
+  }
+  handleClose();
+};
+
+// 呼叫端以 v-if 控制掛載，所以「掛載中」等同「彈窗開著」
+const modalEntry = { onEscape: handleEscape };
+onMounted(() => pushModal(modalEntry));
+onUnmounted(() => popModal(modalEntry));
 </script>
 
 <template>
   <teleport to="body">
-    <div v-if="props.item" class="modal-overlay" @click.self="handleClose">
+    <div class="modal-overlay" @click.self="handleClose">
       <div class="modal-card">
         <header class="modal-head">
           <div>
@@ -146,6 +160,8 @@ const handleClose = () => {
   width: min(560px, 100%);
   max-height: 88vh;
   overflow-y: auto;
+  /* 捲到頂／底後不要把捲動事件傳給底層頁面 */
+  overscroll-behavior: contain;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;

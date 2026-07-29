@@ -355,7 +355,7 @@ const handleCommit = async () => {
         </template>
       </template>
 
-      <ExerciseDetail :item="selectedItem" @close="selectedItemKey = ''" />
+      <ExerciseDetail v-if="selectedItem" :item="selectedItem" @close="selectedItemKey = ''" />
     </template>
 
     <template v-else>

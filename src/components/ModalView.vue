@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
+import { popModal, pushModal } from '@/utils/modalStack';
 
 interface Props {
   cols: Record<string, string>;
@@ -14,6 +15,9 @@ const props = withDefaults(defineProps<Props>(), {
 const result = ref<Record<string, string>>({});
 const emit = defineEmits(['submit']);
 
+/** Esc 等同按 Cancel，不送出 */
+const modalEntry = { onEscape: () => closeModal() };
+
 const openModal = () => {
   const next: Record<string, string> = {};
   Object.keys(props.cols).forEach((key) => {
@@ -22,11 +26,16 @@ const openModal = () => {
   });
   result.value = next;
   visible.value = true;
+  pushModal(modalEntry);
 };
 
 const closeModal = () => {
   visible.value = false;
+  popModal(modalEntry);
 };
+
+// 彈窗開著時切路由，否則 body 會永遠鎖住。popModal 重複呼叫是安全的
+onUnmounted(() => popModal(modalEntry));
 
 const handleSubmit = () => {
   emit('submit', {

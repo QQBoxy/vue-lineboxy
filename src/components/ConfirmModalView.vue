@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
+import { popModal, pushModal } from '@/utils/modalStack';
 
 interface Props {
   title?: string;
@@ -17,14 +18,30 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(['confirmed']);
 
+/** Esc 等同按 Cancel，不觸發 confirmed */
+const modalEntry = { onEscape: () => closeModal() };
+
+const openModal = () => {
+  visible.value = true;
+  pushModal(modalEntry);
+};
+
+const closeModal = () => {
+  visible.value = false;
+  popModal(modalEntry);
+};
+
 const handleConfirm = () => {
   emit('confirmed');
-  visible.value = false;
+  closeModal();
 };
+
+// 彈窗開著時切路由，否則 body 會永遠鎖住。popModal 重複呼叫是安全的
+onUnmounted(() => popModal(modalEntry));
 </script>
 
 <template>
-  <button class="confirm-trigger-btn" type="button" @click.stop="visible = true">
+  <button class="confirm-trigger-btn" type="button" @click.stop="openModal">
     <slot>Delete</slot>
   </button>
   <teleport to="body">
@@ -33,7 +50,7 @@ const handleConfirm = () => {
         <h3 class="modal-title">{{ props.title }}</h3>
         <p class="modal-message">{{ props.message }}</p>
         <div class="modal-actions">
-          <button class="action-btn action-btn-outline" type="button" @click.stop="visible = false">
+          <button class="action-btn action-btn-outline" type="button" @click.stop="closeModal">
             {{ props.cancelText }}
           </button>
           <button class="action-btn action-btn-danger" type="button" @click.stop="handleConfirm">
