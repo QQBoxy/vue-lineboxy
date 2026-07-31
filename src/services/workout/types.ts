@@ -1,7 +1,7 @@
 /**
  * 運動計畫功能的型別定義（唯一真相來源）。
  * 對應計畫文件 doc/plan/done/2026-07-27-workout-feature-batch-a.md 第 2 節，
- * v2 變更見 doc/plan/2026-07-30-workout-schema-v2.md 第 3 節。
+ * v2 變更見 doc/plan/done/2026-07-30-workout-schema-v2.md 第 3 節。
  */
 
 /**

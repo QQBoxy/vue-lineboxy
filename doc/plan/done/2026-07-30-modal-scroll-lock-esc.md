@@ -2,7 +2,7 @@
 
 > 狀態：**已完成**（實作於 `e86eec5`，2026-07-30 人工驗收通過）
 > 建立日期：2026-07-30
-> 相關文件：[2026-07-28-workout-roadmap.md](2026-07-28-workout-roadmap.md)
+> 相關文件：[2026-07-28-workout-roadmap.md](../2026-07-28-workout-roadmap.md)
 
 ---
 
