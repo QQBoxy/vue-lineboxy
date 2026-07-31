@@ -154,7 +154,10 @@ export interface WorkoutPlan {
   schemaVersion: number;
   name: string;
   description?: string;
-  /** 同一系列課表的版次 */
+  /**
+   * 課表版次。
+   * TODO: 目前為全域編號，未來可能調整成「同一系列課表」各自計數。
+   */
   version: number;
   effectiveFrom: DateString;
   groups: PlanGroup[];
