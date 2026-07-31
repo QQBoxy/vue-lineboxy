@@ -23,6 +23,10 @@
 
 `src/views/TotalView.vue` 是採用 `watch` 的舊寫法，**新程式碼不要沿用**。
 
+**本文件只涵蓋運動計畫功能。** `doc/plan/` 根目錄可能還有其他進行中的計畫
+（例如 `cook` 系列），那些是**完全獨立的功能**，與本 roadmap 沒有關係，
+不要互相參照或合併處理。
+
 ---
 
 ## 1. 專案脈絡
@@ -472,5 +476,6 @@ Google 已宣布淘汰 Fit 的 REST API、改推 Android 的 Health Connect，
 若想早點看到數字也可以提前做——前提是批次 B 已經會忠實記錄 `source` 與 `status`，
 否則嚴格版算出來會是一條假線。
 
-截至 2026-07-31，`main` 已推送至 `origin/main`。
+**push 狀態（2026-07-31）**：`main` 有 commit **尚未推送**至 `origin/main`，
+接手前請先 `git log origin/main..main` 確認實際落差。
 後續改動仍**不要自動 push**，等使用者明確指示。
