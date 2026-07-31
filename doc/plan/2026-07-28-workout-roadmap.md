@@ -2,10 +2,12 @@
 
 > 狀態：進行中
 > 建立日期：2026-07-28
-> 最後更新：2026-07-30（批次 A 驗收完成、彈窗捲動鎖定與 Esc 關閉完成）
+> 最後更新：2026-07-31（schema v2 已實作待人工驗收、達成率確定改為雙線）
 > 用途：**交付給新的 session 接手**。本文件力求自足，接手者不需要前面的對話脈絡。
 > 前置文件：[done/2026-07-27-workout-feature-batch-a.md](done/2026-07-27-workout-feature-batch-a.md)（批次 A 的完整設計與驗證紀錄）
-> 相關文件：[done/2026-07-30-modal-scroll-lock-esc.md](done/2026-07-30-modal-scroll-lock-esc.md)（彈窗捲動鎖定與 Esc 關閉）
+> 相關文件：
+> - [2026-07-30-workout-schema-v2.md](2026-07-30-workout-schema-v2.md)（schema v2，**已實作、待人工驗收**）
+> - [done/2026-07-30-modal-scroll-lock-esc.md](done/2026-07-30-modal-scroll-lock-esc.md)（彈窗捲動鎖定與 Esc 關閉）
 
 ---
 
@@ -42,6 +44,9 @@
 | `09cf6d9` | 運動計畫功能批次 A + 補登舊紀錄 |
 | `162a8dd` | 導覽列改為單行橫向捲動 + active 頁籤自動捲入 |
 | `e86eec5` | 彈窗捲動鎖定與 Esc 關閉（三個彈窗共用 `modalStack`） |
+| `6fc2ae2` | **schema v2**：同日擇一 `variants`、彈性日 `countsTowardQuota`、階段內擇一 `selection` |
+| `86dfeae` | schema v2 計畫文件與轉換後的課表 JSON |
+| `346df7a` | 課表版本改為**全域編號**，不再依課表名稱各自計數 |
 
 分支 `main`。remote 是 `QQBoxy/vue-lineboxy`，使用者的 GitHub 帳號 `NekoBoxy` 已取得
 collaborator 權限，可直接 push 到 `main`。**但仍不要自動 push，等使用者明確指示。**
@@ -55,6 +60,7 @@ src/services/workout/
   localRepository.ts   localStorage 實作 + newId()
   schedule.ts          日期工具、群組推導、應運動日配額、月統計（純函式）
   parsePlan.ts         匯入解析、驗證、草稿轉正式課表
+  migrate.ts           v1 → v2 就地遷移（純函式，冪等）
   display.ts           畫面用中介型別與轉換
   backup.ts            匯出／還原、距上次備份天數
 
@@ -80,14 +86,20 @@ src/utils/
   modalStack.ts        彈窗堆疊：鎖定底層捲動 + Esc 關閉（三個彈窗共用）
 ```
 
+`localRepository` 的**所有課表讀取都走 `readPlans()`**，遇到舊版就地升級並回寫，
+其餘程式碼永遠只看得到目前 schema 版本的形狀。新增遷移邏輯請放 `migrate.ts`
+（純函式才能用 esbuild 腳本單獨驗證），不要寫進 `localRepository`。
+
 `ExerciseDetail.vue` 的 `v-if` 在**呼叫端**（`WorkoutImportView` / `WorkoutPlanView`），
 不在元件內部——這樣「掛載 = 彈窗開著」，`onMounted` / `onUnmounted` 才能直接鎖解捲動。
 新增彈窗時請沿用這個結構。
 
 ### 2.3 可用的參考資料
 
-`doc/plan/2026-07-27-workout-sample-plan.json` 是使用者真實課表轉成的 JSON，
-可直接貼進匯入頁，也是驗證 schema 的基準案例。
+| 檔案 | 用途 |
+|---|---|
+| `doc/plan/2026-07-30-workout-plan-v2.json` | **目前的基準案例**。第 2 版真實課表，涵蓋 variants／彈性日／`choose-one`／時間範圍，可直接貼進匯入頁 |
+| `doc/plan/2026-07-27-workout-sample-plan.json` | 第 1 版課表，**保留作為 v1 → v2 遷移的驗證素材**，不要刪 |
 
 ---
 
@@ -112,13 +124,24 @@ src/utils/
 `getPlanForDate(date)` 取 `effectiveFrom <= date` 之中最晚生效的一份。
 不是「匯入後的打卡才連新課表」—— 那樣補登過去日期會連到錯誤的課表。
 
-### 3.4 群組的 `requirement: 'any-one'`
+### 3.4 三層「擇一」不要混淆（schema v2）
 
-對應「週六**或**週日」這種擇一課表。判定規則：
+這是接手者最容易做錯的地方。三者層級不同，**不能互相取代**：
+
+| 層級 | 欄位 | 意思 | 例 |
+|---|---|---|---|
+| 跨星期 | `PlanGroup.requirement: 'any-one'` | 該組涵蓋的幾天裡做到一天就好 | 週六**或**週日 |
+| 同一天 | `PlanGroup.variants`（length > 1） | 當天是兩節**完全不同的課**，選一節做 | 週四 MV 舞蹈／坐姿飛輪 |
+| 階段內 | `Stage.selection: 'choose-one'` | 同一階段的動作勾一個就算完成 | 廚房微肌力：流理台伏地挺身／靠牆靜止收縮 |
+
+`requirement` 的配額判定規則：
 
 - `'all'`：weekdays 中每一天各算一個應運動日配額
 - `'any-one'`：以 ISO 週為單位，整組**每週只佔一個配額**，候選日任一天有紀錄即達成
 - **跨月週歸屬**：週配額歸屬於「該週內第一個涵蓋日」所在月份，避免重複計算
+
+只有一種內容的日子就是**單一 variant**，不必特例——`PlanGroup` 底下一律是 `variants`，
+v1 的 `PlanGroup.stages` 已移除。`WorkoutLog.variantId` 記錄當天實際做了哪一個。
 
 ### 3.5 動作定義以名稱跨版本共用
 
@@ -131,10 +154,14 @@ src/utils/
 ### 3.6 規格用結構化欄位
 
 `measureType`（`reps` / `time` / `hold`）決定打卡 UI 的輸入型態，
-搭配 `sets` / `reps{min,max}` / `durationSeconds` / `holdSeconds` / `perSide` / `resistance`，
+搭配 `sets` / `reps{min,max}` / `durationSeconds{min,max}` / `holdSeconds` / `perSide` / `resistance`，
 另外保留 `specText` 原文供顯示。
 
 **不要退回純文字**——結構化是「動作進步趨勢」這個長期價值最高功能的前提。
+
+`durationSeconds` 在 v2 已改為 `NumRange`（MV 舞蹈 10–15 分鐘存 `{min:600, max:900}`）。
+**打卡輸入單位由數量級推導**：`durationSeconds.min >= 120` 時 UI 以**分鐘**輸入，否則以秒。
+不另外加欄位標記單位——多一個欄位反而要維護一致性。這是 UI 契約，批次 B 要照做。
 
 ### 3.7 日期一律 `'YYYY-MM-DD'` 本地時區字串
 
@@ -145,24 +172,53 @@ src/utils/
 
 ISO-8601：**1 = 週一 … 7 = 週日**。
 
+### 3.9 彈性日 `countsTowardQuota`（schema v2）
+
+`PlanGroup.countsTowardQuota: false` 的群組（目前是週二、三的買菜備料煮飯日）
+**不進「應運動日配額」的分母**，但該日的打卡**仍然計入「實際運動日」**。
+
+理由：達成率要反映的是自律程度。這些日子課表本來就寫明「不強求大課表」，
+放進分母只會讓數字失真；但使用者真的在廚房動了，運動日佔比不該漏掉。
+
+**做批次 C 統計時不要「順手修正」掉這個不對稱**，它是刻意的。
+
+### 3.10 `avoidances` 是可機器檢查的規則
+
+`WorkoutPlan.avoidances: string[]`（目前為 `['深蹲', '跳躍', '爬樓梯']`）
+與 `medicalNotes`（病史敘述）性質不同：它是**規則**，匯入時掃描動作名稱與步驟文字，
+命中即警告。AI 重出課表最容易犯的錯就是悄悄把被排除的動作放回來。
+
+`parsePlan.ts` 已實作這個掃描，批次 C 的「課表版本 diff」可直接重用。
+
 ---
 
 ## 4. 資料模型速覽
 
+**以 `src/services/workout/types.ts` 為唯一真相來源**，本節只是導覽。
+目前 `WORKOUT_SCHEMA_VERSION = 2`。
+
 ```
-WorkoutPlan        課表版本（schemaVersion, version, effectiveFrom, locked, sourceText）
-  └ PlanGroup      群組（weekdays[], requirement, cautions[], estimatedMinutes）
-      └ Stage      階段（rounds 循環組數, restBetweenRoundsSeconds）
-          └ StageItem   動作引用 + 規格（exerciseId, measureType, sets/reps/…, specText）
-  └ FallbackRoutine     微型／備用課表（不綁星期，忙碌日使用）
+WorkoutPlan        課表版本（schemaVersion, name, version 全域編號, effectiveFrom,
+                             medicalNotes[], avoidances[], locked, sourceText）
+  └ PlanGroup      群組（weekdays[], requirement, summary?, cautions[],
+                         estimatedMinutes, countsTowardQuota）
+      └ PlanVariant     同日可選內容（label, summary?, estimatedMinutes）
+                        ← v2 新增，取代 v1 的 PlanGroup.stages
+          └ Stage       階段（rounds 循環組數, restBetweenRoundsSeconds, selection, note?）
+              └ StageItem   動作引用 + 規格（exerciseId, measureType,
+                             sets/reps/durationSeconds/holdSeconds/perSide/resistance, specText）
+  └ FallbackRoutine     微型／備用課表（不綁星期，忙碌日主動選用；直接持有 StageItem[]）
 
 ExerciseDef        動作庫（獨立集合，name 為共用鍵；steps, cautions, equipment, videoUrl）
 
-WorkoutLog         打卡（date, planId?, source, status, totalMinutes, rpe, note）
+WorkoutLog         打卡（date, planId?, planVersion?, source, groupId?, variantId?,
+                         fallbackId?, status, totalMinutes, rpe, note）
   └ LogItem        實際項目（stageItemId?, done, actual*）
 ```
 
-`WorkoutLog.planId` 為選填：自由運動且當天沒有任何生效課表時為空。
+- `WorkoutLog.planId` 為選填：自由運動且當天沒有任何生效課表時為空
+- `WorkoutLog.variantId` 為選填：舊資料為空，代表「當時只有一個選項」
+- `WorkoutPlan.version` 是**全域遞增**的，不再依課表名稱各自計數（`346df7a`）
 
 localStorage keys：`lineboxy.workout.{meta,exercises,plans,logs}`。
 容量無虞——課表約 10–15 KB／份、打卡約 0.3–0.6 KB／筆，十年份不到 1 MB（上限 5 MB）。
@@ -187,7 +243,9 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
 
 ---
 
-## 6. 人工驗收結果（2026-07-30 全數通過）
+## 6. 人工驗收結果
+
+批次 A、導覽列、彈窗三項於 2026-07-30 全數通過；**schema v2 尚未驗收，見 §6.1**。
 
 **批次 A：全數通過。** 七天總覽與原文相符、「六或日」正確呈現為擇一、微型課表有收錄、
 動作庫去重合理、循環訓練組數與組間休息正確、防護重點在群組層與動作層都看得到。
@@ -208,6 +266,15 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
 **彈窗捲動鎖定與 Esc 關閉：通過。** 見
 [done/2026-07-30-modal-scroll-lock-esc.md](done/2026-07-30-modal-scroll-lock-esc.md) §5 的八項。
 
+### 6.1 schema v2：**尚未人工驗收**
+
+`6fc2ae2` 的自動驗證（vue-tsc / eslint / vite build / 32 項純函式腳本）全數通過，
+但**八項人工驗收還沒做**，清單見
+[2026-07-30-workout-schema-v2.md](2026-07-30-workout-schema-v2.md) §9.3。
+
+其中第 8 項「舊資料遷移」**最優先**——遷移會就地回寫 localStorage，
+一旦壞掉且使用者沒有備份檔就回不來了。驗收前建議先用 `exportAll()` 存一份備份。
+
 ---
 
 ## 7. 路線圖
@@ -223,11 +290,42 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
   應該兩三下結束，只有要調整的才進去改。使用者已明確表示以點擊打勾為主。
 - **動作層的注意事項要顯示在 checklist 上**，不能只藏在詳情頁——防護重點只有在做的當下看到才有用
 - 支援：微型課表選項、自由運動、部分完成、一天多筆（早上／晚上）
-- **月曆檢視**為主（手機上日檢視資訊量太少）。休息日、完整課表、微型課表用不同顏色區分
+- **月曆檢視**為主（手機上日檢視資訊量太少）。用不同顏色區分**四種**狀態：
+  休息日、照表完成、fallback／部分完成、彈性日（NEAT，`countsTowardQuota: false`）
 - 週檢視可作為打卡入口
 
+#### schema v2 帶來的額外需求
+
+- **variant 選擇**：`variants.length > 1` 的日子，打卡要先選一節課，存進 `WorkoutLog.variantId`；
+  重新開啟打卡頁時要正確回填先前的選擇
+- **`selection: 'choose-one'` 的完成判定**：該階段勾一個動作即算完成，
+  「一鍵全部完成」在這種階段的行為需明確（見下方待決議）
+- **時間型輸入單位**：依 §3.6 的規則，`durationSeconds.min >= 120` 用分鐘、否則用秒
+- **`source` 必須忠實記錄**（見下方待決議），批次 C 的達成率直接吃這個欄位
+
 現有的 `WorkoutLogView.vue` 是簡易版，可就地升級或改寫。
-`WorkoutLog.items` / `LogItem` 型別已備妥，資料層不需改動。
+`WorkoutLog` / `LogItem` 型別已備妥（含 v2 的 `variantId`），資料層不需改動。
+
+#### 待決議：fallback 與 variant 內容重疊時，`source` 記什麼
+
+「隱形坐姿核心」「廚房 1 分鐘微肌力」「睡前床上放鬆」三份**同時**是某天的 variant
+又列在 `fallbackRoutines`。內容一模一樣，但 `source` 記 `'group'` 或 `'fallback'`
+會直接改變批次 C 的達成率數字（§7 批次 C）。
+
+**建議：以打卡入口決定。** 從「今天的課表」選 variant 進來 → `'group'`；
+從「備用課表」清單主動選 → `'fallback'`。記錄的是**行為意圖**，不是內容。
+因此打卡頁的這兩個入口在 UI 上必須分得清楚，不能混成同一份清單。
+
+同理，週一做 5 分鐘「隱形坐姿核心」是課表本身允許的 variant，**算照表達成**——
+否則 variants 的設計意義就沒了。
+
+#### 「一鍵全部完成」的兩個未定行為
+
+1. 遇到 `choose-one` 階段：全勾？勾第一個？還是留白要求手動選？
+2. 遇到 `variants.length > 1` 的日子：必須先選 variant 才能按，還是預設第一個？
+
+照表操課的日子應該兩三下結束（使用者已明確表示以點擊打勾為主），
+但這兩處若預設錯了會產生假資料，實作前先確認。
 
 ### 插隊項目：備份到 Google Drive appDataFolder
 
@@ -244,13 +342,53 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
 ### 批次 C：統計與趨勢
 
 - 年檢視 heatmap（類似 GitHub contribution graph）
-- 達成率與運動日佔比。`schedule.ts` 的 `computeMonthStats()` 已實作，直接接畫面
-  - 達成率 = 已達成配額 / 應運動日配額 ← 這才是自律程度
-  - 運動日佔比 = 實際運動日 / 當月天數（分母算到今天為止）
-- 課表版本 diff：匯入新版時比對出新增／移除／修改的動作。
+- **達成率改為雙線**（2026-07-31 決議，見本節「達成率雙線」）
+- 運動日佔比 = 實際運動日 / 當月天數（分母算到今天為止）。
+  `schedule.ts` 的 `computeMonthStats()` 已實作，直接接畫面
+- 課表版本 diff：匯入新版時比對出新增／移除／修改的動作，
+  比對層級要下探到 `variants`。`avoidances` 掃描已在 `parsePlan.ts` 實作，可直接重用。
   AI 重出課表常會悄悄改掉沒要它改的東西
-- **動作進步趨勢圖**：同一動作跨群組、跨課表版本的重量／次數變化。
-  這是整個功能長期價值最高的部分，`ExerciseDef` 以名稱共用就是為了支撐它
+- **動作進步趨勢圖**：同一動作跨群組、跨 variant、跨課表版本的重量／次數變化。
+  這是整個功能長期價值最高的部分，`ExerciseDef` 以名稱共用就是為了支撐它。
+  注意「坐姿核心收縮」與「坐姿腹橫肌等長收縮」**刻意是兩條線**
+  （[schema v2 決議 4](2026-07-30-workout-schema-v2.md)），不是 bug
+
+#### 達成率雙線（2026-07-31 決議）
+
+**現況是錯的**：`computeMonthStats()` 目前的判定是
+`logs.filter((log) => log.status !== 'rest')`，只看「那天有沒有非休息的打卡」，
+不管 `source` 也不管 `status`。所以只做了 1 分鐘廚房微肌力，該日配額就算滿分。
+**這條線目前沒有任何自律訊號**——它其實已經是下表的「活動達成率」，
+缺的反而是嚴格版。
+
+| 指標 | 分子條件 | 意義 |
+|---|---|---|
+| **照表達成率** | `source === 'group'` 且 `status === 'done'` | 真的照課表做完 |
+| **活動達成率** | `status !== 'rest'`（現行邏輯，不動） | 有動就算，含 fallback 與 `partial` |
+
+- **分母兩者相同**，都沿用 `getExpectedSlots()`，因此 §3.9 的彈性日照樣不進分母
+- `partial` **只進寬鬆版**。這樣兩條線的差距本身就是有意義的數字：
+  「有動但沒照表完成」的比例。若把 `partial` 也算進嚴格版，兩條線會黏在一起，
+  第二條就白做了
+- variant 不影響嚴格版：做週一的 5 分鐘極速版仍算照表達成（見批次 B 的 `source` 決議）
+
+**為什麼要第二條線**：好習慣不是一日養成的。使用者需要看到
+「我有做運動，只是當天有其它事所以只能做 fallback 版」，
+單一嚴格指標會讓忙碌日看起來像完全失敗，容易直接放棄。
+
+**呈現方式：同一條進度條的兩段，不要並排兩個百分比。**
+並排會讓人只挑好看的那個看，心理暗示反而變成自欺。
+
+```
+████████░░░░░░····  照表 8/16 ・ 有動 13/16
+```
+
+深色 = 照表達成，淺色 = fallback／partial 補上的部分。
+淺色段很長代表「你其實很努力」，同時看得到離照表操課還有多遠——單看數字做不到。
+
+**成本**：資料層零改動，`LogSource` / `LogStatus` 都已就位。
+只要 `computeMonthStats()` 多算一組、`MonthStats` 多幾個欄位，是純加法。
+既有 `achievementRate` 欄位語意不變（就是寬鬆版），現有畫面不會壞。
 
 ### 批次 D：接後端
 
@@ -300,10 +438,17 @@ Google 已宣布淘汰 Fit 的 REST API、改推 Android 的 Health Connect，
 
 ## 10. 建議的下一步
 
-§6 的人工驗收已於 2026-07-30 全數完成，接下來：
-
-1. 做 **批次 B**，功能完整後才知道真正需要同步什麼。
+1. **先完成 schema v2 的八項人工驗收**（§6.1）。程式已寫完但沒人實際跑過，
+   尤其「舊資料遷移」會就地回寫 localStorage。**驗收前先匯出一份備份檔。**
+   在這之前不要開始批次 B——踩到遷移的雷會很難分辨是新舊哪一段壞的
+2. 確認批次 B 的兩個待決議：fallback／variant 的 `source` 判定、
+   「一鍵全部完成」遇到 `choose-one` 與多 variant 的行為（見 §7 批次 B）
+3. 做 **批次 B**，功能完整後才知道真正需要同步什麼。
    起手處是 `WorkoutLogView.vue` 與動作層注意事項的顯示（見 §6）
-2. Drive 備份可視使用者對資料遺失的擔憂程度隨時插隊
+4. Drive 備份可視使用者對資料遺失的擔憂程度隨時插隊
+
+達成率雙線屬批次 C，但它**只改 `computeMonthStats()`**、不依賴批次 B 的 UI，
+若想早點看到數字也可以提前做——前提是批次 B 已經會忠實記錄 `source` 與 `status`，
+否則嚴格版算出來會是一條假線。
 
 `main` 上的改動都還**沒有 push**，等使用者明確指示。
