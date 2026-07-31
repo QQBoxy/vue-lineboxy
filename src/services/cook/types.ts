@@ -38,13 +38,34 @@ export const MEAL_SHORT_LABELS: Record<MealSlot, string> = {
   snack: '點',
 };
 
-/** 食材與調味料共用型別，以此欄位區分。UI 分區、單位候選不同，資料層邏輯只寫一份 */
+/**
+ * 主檔的分類。UI 分區、單位候選不同，資料層邏輯只寫一份。
+ *
+ * 只有兩類：醃料用的東西（醬油、米酒、蒜末）與調味料幾乎完全重疊，
+ * 若在主檔也分開，同一瓶醬油會變成兩筆、各自累積次數，
+ * 在醃料區打字時就查不到已經用過二十次的那筆，自動完成等於白做。
+ */
 export type IngredientKind = 'food' | 'seasoning';
 
-export const KIND_LABELS: Record<IngredientKind, string> = {
+/**
+ * 食譜中的分區。比主檔多一個「醃料」——它是擺放位置的差異，不是東西的差異。
+ * 醃料的單位候選與自動完成一律比照調味料。
+ */
+export type RecipeSection = 'food' | 'marinade' | 'seasoning';
+
+/** 編輯與檢視畫面的分區順序，照做菜的順序：備料 → 醃 → 調味 */
+export const RECIPE_SECTIONS: RecipeSection[] = ['food', 'marinade', 'seasoning'];
+
+export const SECTION_LABELS: Record<RecipeSection, string> = {
   food: '食材',
+  marinade: '醃料',
   seasoning: '調味料',
 };
+
+/** 食譜分區 → 主檔分類。醃料與調味料共用同一個主檔池 */
+export function masterKindOf(section: RecipeSection): IngredientKind {
+  return section === 'food' ? 'food' : 'seasoning';
+}
 
 // ---------------------------------------------------------------------------
 // 食材主檔
@@ -82,7 +103,8 @@ export interface RecipeIngredient {
   ingredientId: Id;
   /** 名稱快照。主檔改名不影響歷史食譜的顯示 */
   nameSnapshot: string;
-  kind: IngredientKind;
+  /** 在食譜中屬於哪一區。舊資料只會是 'food' / 'seasoning'，仍然合法 */
+  kind: RecipeSection;
   /** 未填 = 「適量」 */
   amount?: number;
   /** 單位代碼，或使用者自由輸入的字串 */

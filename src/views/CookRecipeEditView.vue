@@ -8,10 +8,12 @@ import { cookRepository, newId } from '@/services/cook/localRepository';
 import { parseYoutubeId } from '@/services/cook/youtube';
 import {
   COOK_SCHEMA_VERSION,
+  RECIPE_SECTIONS,
+  SECTION_LABELS,
   type Ingredient,
-  type IngredientKind,
   type Recipe,
   type RecipeIngredient,
+  type RecipeSection,
   type RecipeSource,
 } from '@/services/cook/types';
 import { popModal, pushModal } from '@/utils/modalStack';
@@ -31,8 +33,12 @@ const master = ref<Ingredient[]>([]);
 const original = ref<Recipe | null>(null);
 
 const name = ref('');
-const foods = ref<RecipeIngredient[]>([]);
-const seasonings = ref<RecipeIngredient[]>([]);
+/** 食材／醃料／調味料三區，以分區為 key，三區的操作邏輯完全相同 */
+const rows = ref<Record<RecipeSection, RecipeIngredient[]>>({
+  food: [],
+  marinade: [],
+  seasoning: [],
+});
 const steps = ref<string[]>([]);
 const sources = ref<RecipeSource[]>([]);
 const note = ref('');
@@ -41,8 +47,7 @@ const note = ref('');
 const snapshot = () =>
   JSON.stringify({
     name: name.value,
-    foods: foods.value,
-    seasonings: seasonings.value,
+    rows: rows.value,
     steps: steps.value,
     sources: sources.value,
     note: note.value,
@@ -51,11 +56,11 @@ const snapshot = () =>
 const initialSnapshot = ref('');
 const isDirty = computed(() => snapshot() !== initialSnapshot.value);
 
-const blankIngredient = (kind: IngredientKind): RecipeIngredient => ({
+const blankIngredient = (section: RecipeSection): RecipeIngredient => ({
   id: newId(),
   ingredientId: '',
   nameSnapshot: '',
-  kind,
+  kind: section,
 });
 
 const loadAll = async () => {
@@ -72,16 +77,17 @@ const loadAll = async () => {
       }
       original.value = recipe;
       name.value = recipe.name;
-      foods.value = recipe.ingredients.filter((item) => item.kind === 'food').map((item) => ({ ...item }));
-      seasonings.value = recipe.ingredients
-        .filter((item) => item.kind === 'seasoning')
-        .map((item) => ({ ...item }));
+      RECIPE_SECTIONS.forEach((section) => {
+        rows.value[section] = recipe.ingredients
+          .filter((item) => item.kind === section)
+          .map((item) => ({ ...item }));
+      });
       steps.value = [...recipe.steps];
       sources.value = recipe.sources.map((item) => ({ ...item }));
       note.value = recipe.note ?? '';
     } else {
       // 新增時先擺一列空的食材，省掉「新增食譜後還要再按一次新增食材」
-      foods.value = [blankIngredient('food')];
+      rows.value.food = [blankIngredient('food')];
     }
 
     initialSnapshot.value = snapshot();
@@ -95,22 +101,14 @@ const loadAll = async () => {
 
 onMounted(loadAll);
 
-// --- 食材／調味料 ---------------------------------------------------------
+// --- 食材／醃料／調味料 ---------------------------------------------------
 
-const addFood = () => {
-  foods.value = [...foods.value, blankIngredient('food')];
+const addRow = (section: RecipeSection) => {
+  rows.value[section] = [...rows.value[section], blankIngredient(section)];
 };
 
-const addSeasoning = () => {
-  seasonings.value = [...seasonings.value, blankIngredient('seasoning')];
-};
-
-const removeFood = (index: number) => {
-  foods.value = foods.value.filter((_, i) => i !== index);
-};
-
-const removeSeasoning = (index: number) => {
-  seasonings.value = seasonings.value.filter((_, i) => i !== index);
+const removeRow = (section: RecipeSection, index: number) => {
+  rows.value[section] = rows.value[section].filter((_, i) => i !== index);
 };
 
 // --- 參考來源 -------------------------------------------------------------
@@ -147,7 +145,8 @@ const handleSave = async () => {
     const now = new Date().toISOString();
     const existing = original.value;
 
-    const ingredients = [...foods.value, ...seasonings.value]
+    // 依 RECIPE_SECTIONS 的順序攤平，重新編輯時各區的內容才會回到原本的位置
+    const ingredients = RECIPE_SECTIONS.flatMap((section) => rows.value[section])
       .filter((item) => item.nameSnapshot.trim() !== '')
       .map((item) => ({ ...item, nameSnapshot: item.nameSnapshot.trim() }));
 
@@ -241,32 +240,20 @@ onUnmounted(() => popModal(modalEntry));
         />
       </section>
 
-      <section class="form-card">
-        <h2>食材</h2>
+      <section v-for="section in RECIPE_SECTIONS" :key="section" class="form-card">
+        <h2>{{ SECTION_LABELS[section] }}</h2>
         <div class="row-stack">
           <IngredientInput
-            v-for="(item, index) in foods"
+            v-for="(item, index) in rows[section]"
             :key="item.id"
-            v-model="foods[index]"
+            v-model="rows[section][index]"
             :ingredients="master"
-            @remove="removeFood(index)"
+            @remove="removeRow(section, index)"
           />
         </div>
-        <button class="add-btn" type="button" @click="addFood">＋ 新增食材</button>
-      </section>
-
-      <section class="form-card">
-        <h2>調味料</h2>
-        <div class="row-stack">
-          <IngredientInput
-            v-for="(item, index) in seasonings"
-            :key="item.id"
-            v-model="seasonings[index]"
-            :ingredients="master"
-            @remove="removeSeasoning(index)"
-          />
-        </div>
-        <button class="add-btn" type="button" @click="addSeasoning">＋ 新增調味料</button>
+        <button class="add-btn" type="button" @click="addRow(section)">
+          ＋ 新增{{ SECTION_LABELS[section] }}
+        </button>
       </section>
 
       <section class="form-card">

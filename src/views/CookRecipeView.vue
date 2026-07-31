@@ -5,7 +5,15 @@ import ConfirmModalView from '@/components/ConfirmModalView.vue';
 import SourceLink from '@/components/cook/SourceLink.vue';
 import { cookRepository } from '@/services/cook/localRepository';
 import { formatAmount } from '@/services/cook/units';
-import { MEAL_LABELS, MEAL_SLOTS, type Recipe } from '@/services/cook/types';
+import {
+  MEAL_LABELS,
+  MEAL_SLOTS,
+  RECIPE_SECTIONS,
+  SECTION_LABELS,
+  type Recipe,
+  type RecipeIngredient,
+  type RecipeSection,
+} from '@/services/cook/types';
 
 const route = useRoute();
 const router = useRouter();
@@ -28,10 +36,19 @@ onMounted(async () => {
   }
 });
 
-const foods = computed(() => recipe.value?.ingredients.filter((item) => item.kind === 'food') ?? []);
+interface SectionRows {
+  section: RecipeSection;
+  label: string;
+  items: RecipeIngredient[];
+}
 
-const seasonings = computed(
-  () => recipe.value?.ingredients.filter((item) => item.kind === 'seasoning') ?? [],
+/** 只列出有內容的分區，沒醃過的菜不必看到空的「醃料」標題 */
+const sections = computed<SectionRows[]>(() =>
+  RECIPE_SECTIONS.map((section) => ({
+    section,
+    label: SECTION_LABELS[section],
+    items: recipe.value?.ingredients.filter((item) => item.kind === section) ?? [],
+  })).filter((group) => group.items.length > 0),
 );
 
 /** 依固定的時段順序顯示，而非 mealTags 的累積順序 */
@@ -78,20 +95,11 @@ const handleDelete = async () => {
         </p>
       </section>
 
-      <section v-if="foods.length > 0 || seasonings.length > 0" class="list-card">
-        <h2>食材</h2>
-        <ul v-if="foods.length > 0" class="amount-list">
-          <li v-for="item in foods" :key="item.id">
-            <span class="amount-name">{{ item.nameSnapshot }}</span>
-            <span class="amount-value">{{ formatAmount(item.amount, item.unit) }}</span>
-          </li>
-        </ul>
-        <p v-else class="empty-hint">沒有記錄食材。</p>
-
-        <template v-if="seasonings.length > 0">
-          <h2 class="section-gap">調味料</h2>
+      <section v-if="sections.length > 0" class="list-card">
+        <template v-for="(group, index) in sections" :key="group.section">
+          <h2 :class="{ 'section-gap': index > 0 }">{{ group.label }}</h2>
           <ul class="amount-list">
-            <li v-for="item in seasonings" :key="item.id">
+            <li v-for="item in group.items" :key="item.id">
               <span class="amount-name">{{ item.nameSnapshot }}</span>
               <span class="amount-value">{{ formatAmount(item.amount, item.unit) }}</span>
             </li>

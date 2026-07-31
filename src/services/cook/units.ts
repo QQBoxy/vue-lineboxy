@@ -4,7 +4,7 @@
  * 「累積食材用量」的成敗全在單位，事後補做要回頭改所有既有資料，
  * 因此換算係數從第一版就存在（批次 C 的統計直接可用）。
  */
-import type { IngredientKind } from './types';
+import type { RecipeSection } from './types';
 
 export type UnitCategory = 'weight' | 'volume' | 'count';
 
@@ -50,7 +50,7 @@ export const UNITS: UnitDef[] = [
 const BY_CODE = new Map(UNITS.map((unit) => [unit.code, unit]));
 
 /**
- * 輸入區的單位候選清單依 kind 而異，順序即為下拉選單順序。
+ * 輸入區的單位候選清單依分區而異，順序即為下拉選單順序。
  * 常用的排前面，讓多數情況不必捲動也不必自由輸入。
  */
 const FOOD_UNIT_CODES = [
@@ -72,8 +72,9 @@ const FOOD_UNIT_CODES = [
 
 const SEASONING_UNIT_CODES = ['tbsp', 'tsp', 'ml', 'g', 'cup', 'teaspoon', 'piece', 'slice'];
 
-export function unitOptionsFor(kind: IngredientKind): UnitDef[] {
-  const codes = kind === 'seasoning' ? SEASONING_UNIT_CODES : FOOD_UNIT_CODES;
+/** 醃料倒的也是醬油米酒，候選清單比照調味料 */
+export function unitOptionsFor(section: RecipeSection): UnitDef[] {
+  const codes = section === 'food' ? FOOD_UNIT_CODES : SEASONING_UNIT_CODES;
   return codes
     .map((code) => BY_CODE.get(code))
     .filter((unit): unit is UnitDef => unit !== undefined);

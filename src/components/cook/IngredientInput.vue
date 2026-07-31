@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { suggestIngredients } from '@/services/cook/suggest';
 import { unitOptionsFor, findUnit } from '@/services/cook/units';
+import { SECTION_LABELS, masterKindOf } from '@/services/cook/types';
 import type { Ingredient, RecipeIngredient } from '@/services/cook/types';
 
 interface Props {
@@ -16,8 +17,11 @@ const emit = defineEmits<{
   (e: 'remove'): void;
 }>();
 
-const kind = props.modelValue.kind;
-const unitOptions = unitOptionsFor(kind);
+/** 所在分區，元件存活期間不變（父層以 RecipeIngredient.id 當 key） */
+const section = props.modelValue.kind;
+/** 自動完成查的是主檔分類：醃料與調味料共用同一池 */
+const kind = masterKindOf(section);
+const unitOptions = unitOptionsFor(section);
 
 const showSuggestions = ref(false);
 /** 單位不在候選表中（自由輸入）時，一開始就要顯示文字輸入框而非下拉 */
@@ -84,7 +88,7 @@ const backToUnitList = () => {
         class="text-input name-input"
         type="text"
         :value="props.modelValue.nameSnapshot"
-        :placeholder="kind === 'seasoning' ? '調味料名稱' : '食材名稱'"
+        :placeholder="`${SECTION_LABELS[section]}名稱`"
         autocomplete="off"
         @input="handleNameInput"
         @focus="showSuggestions = true"

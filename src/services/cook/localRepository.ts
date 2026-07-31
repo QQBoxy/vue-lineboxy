@@ -4,6 +4,7 @@ import { findIngredientByName } from './suggest';
 import {
   COOK_SCHEMA_VERSION,
   DEFAULT_COOK_SETTINGS,
+  masterKindOf,
   type CookBackupFile,
   type CookLog,
   type CookMeta,
@@ -140,7 +141,8 @@ export class LocalCookRepository implements CookRepository {
         if (item.ingredientId) return item;
         const created = await this.upsertIngredient({
           name: item.nameSnapshot,
-          kind: item.kind,
+          // 醃料在主檔中歸為調味料，同一瓶醬油不會因為擺在哪一區而分裂成兩筆
+          kind: masterKindOf(item.kind),
         });
         return { ...item, ingredientId: created.id, nameSnapshot: created.name };
       }),
