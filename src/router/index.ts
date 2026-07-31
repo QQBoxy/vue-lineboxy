@@ -44,6 +44,22 @@ const router = createRouter({
           component: () => import('../views/WorkoutPlanView.vue')
         },
         {
+          path: '/cook',
+          component: () => import('../views/CookView.vue')
+        },
+        {
+          path: '/cook/recipe/new',
+          component: () => import('../views/CookRecipeEditView.vue')
+        },
+        {
+          path: '/cook/recipe/:id',
+          component: () => import('../views/CookRecipeView.vue')
+        },
+        {
+          path: '/cook/recipe/:id/edit',
+          component: () => import('../views/CookRecipeEditView.vue')
+        },
+        {
           path: '/kanban',
           component: () => import('../views/BoardsView.vue')
         },

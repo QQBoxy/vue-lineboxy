@@ -59,6 +59,10 @@ onBeforeUnmount(stopAfterEach);
           <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path.startsWith('/workout') }" to="/workout">
             Workout
           </RouterLink>
+          <RouterLink class="nav-link nav-link-cook" :class="{ 'nav-link-active': route.path.startsWith('/cook') }"
+            to="/cook">
+            獺廚娘
+          </RouterLink>
         </template>
         <template v-else>
           <RouterLink class="nav-link nav-link-login" :class="{ 'nav-link-active': route.path === '/login' }"
@@ -153,6 +157,24 @@ onBeforeUnmount(stopAfterEach);
 
 .nav-link-login {
   background: #0f766e;
+  color: #ffffff;
+}
+
+/* 獺廚娘用暖色與 Workout 的藍綠色區隔，兩個頁籤一眼可辨 */
+.nav-link-cook {
+  border-color: #c2410c;
+  color: #c2410c;
+}
+
+.nav-link-cook:hover {
+  background: #fff7ed;
+  border-color: #9a3412;
+  color: #9a3412;
+}
+
+.nav-link-cook.nav-link-active {
+  background: #c2410c;
+  border-color: #c2410c;
   color: #ffffff;
 }
 
