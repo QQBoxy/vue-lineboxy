@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { usePersonStore } from '@/stores/person';
 import { workoutRepository } from '@/services/workout/localRepository';
 import { daysSinceBackup, exportBackup, importBackup } from '@/services/workout/backup';
@@ -16,7 +17,15 @@ import type { DateString, WorkoutLog, WorkoutMeta, WorkoutPlan } from '@/service
 /** 首頁顯示的補登範圍，涵蓋完整的上一週 */
 const RECENT_DAYS = 14;
 
+const route = useRoute();
 const personStore = usePersonStore();
+
+/** 打卡頁存檔後導回這裡並帶上結果，讓使用者知道剛才那一下有生效 */
+const SAVED_MESSAGES: Record<string, string> = {
+  created: '已儲存打卡。',
+  updated: '已更新這筆打卡。',
+  deleted: '已刪除這筆打卡。',
+};
 
 const plans = ref<WorkoutPlan[]>([]);
 const todayPlan = ref<WorkoutPlan | null>(null);
@@ -58,7 +67,10 @@ const loadAll = async () => {
   }
 };
 
-onMounted(loadAll);
+onMounted(() => {
+  message.value = SAVED_MESSAGES[String(route.query.saved ?? '')] ?? '';
+  loadAll();
+});
 
 const todayGroup = computed(() => getGroupForDate(todayPlan.value, today));
 
@@ -73,22 +85,25 @@ interface RecentRow {
   logLabel: string;
 }
 
+/** 一天可能有多筆，逐筆列出摘要 */
+const logLabelOf = (log: WorkoutLog): string => {
+  const kind = log.source === 'fallback' ? '微型' : log.source === 'freeform' ? '自由' : '';
+  const state = log.status === 'partial' ? '部分完成' : '已完成';
+  return `${kind}${state}${log.totalMinutes ? ` · ${log.totalMinutes} 分` : ''}`;
+};
+
 const recentRows = computed<RecentRow[]>(() =>
   recentDates.map((date) => {
     const plan = recentPlans.value[date] ?? null;
     const group = getGroupForDate(plan, date);
-    const log = recentLogs.value.find((entry) => entry.date === date);
+    const logs = recentLogs.value.filter((entry) => entry.date === date);
     return {
       date,
       weekdayLabel: WEEKDAY_LABELS[isoWeekdayOf(date)],
       planLabel: group?.label ?? (plan ? '休息日' : '無課表'),
       isRest: !group,
-      logged: !!log,
-      logLabel: log
-        ? `${log.source === 'fallback' ? '微型' : log.source === 'freeform' ? '自由' : ''}${
-            log.status === 'partial' ? '部分完成' : '已完成'
-          }${log.totalMinutes ? ` · ${log.totalMinutes} 分` : ''}`
-        : '',
+      logged: logs.length > 0,
+      logLabel: logs.map(logLabelOf).join('、'),
     };
   }),
 );
@@ -212,9 +227,22 @@ const handleImportFile = async (event: Event) => {
           </template>
         </section>
 
+        <!-- 月曆入口。刻意做成全寬按鈕：藏在標題旁的小連結沒有人會看到 -->
+        <RouterLink class="calendar-link" to="/workout/calendar">
+          <span class="calendar-icon">📅</span>
+          <span class="calendar-main">
+            <span class="calendar-title">月曆檢視</span>
+            <span class="calendar-sub">看整個月的達成情況，點任一天可補登</span>
+          </span>
+          <span class="chevron">›</span>
+        </RouterLink>
+
         <!-- 最近 14 天：補登入口 -->
         <section class="list-card">
-          <h2>最近 {{ RECENT_DAYS }} 天 · 已記錄 {{ loggedCount }} 天</h2>
+          <div class="section-head">
+            <h2>最近 {{ RECENT_DAYS }} 天 · 已記錄 {{ loggedCount }} 天</h2>
+            <RouterLink class="head-link" to="/workout/calendar">月曆 ›</RouterLink>
+          </div>
           <p class="empty-hint">點任一天可補登或修改紀錄。</p>
           <ul class="recent-list">
             <li v-for="row in recentRows" :key="row.date">
@@ -479,6 +507,52 @@ const handleImportFile = async (event: Event) => {
   color: #0f766e;
 }
 
+.calendar-link {
+  margin-top: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 60px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #99f6e4;
+  border-radius: 14px;
+  background: #f0fdfa;
+  color: #115e59;
+  text-decoration: none;
+  box-shadow: 0 6px 22px -16px rgba(15, 23, 42, 0.38);
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.calendar-link:hover {
+  background: #ccfbf1;
+  border-color: #0f766e;
+}
+
+.calendar-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.calendar-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  margin-right: auto;
+}
+
+.calendar-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.calendar-sub {
+  font-size: 0.82rem;
+  color: #0f766e;
+  opacity: 0.85;
+}
+
 .recent-list {
   list-style: none;
   margin: 0.6rem 0 0;
@@ -563,6 +637,25 @@ const handleImportFile = async (event: Event) => {
   margin: 0 0 0.75rem;
   font-size: 1.05rem;
   color: #0f172a;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.head-link {
+  color: #0f766e;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.head-link:hover {
+  text-decoration: underline;
 }
 
 .plan-list {

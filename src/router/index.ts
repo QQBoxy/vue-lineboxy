@@ -40,6 +40,10 @@ const router = createRouter({
           component: () => import('../views/WorkoutLogView.vue')
         },
         {
+          path: '/workout/calendar',
+          component: () => import('../views/WorkoutCalendarView.vue')
+        },
+        {
           path: '/workout/plan/:id',
           component: () => import('../views/WorkoutPlanView.vue')
         },

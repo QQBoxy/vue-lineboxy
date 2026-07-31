@@ -221,12 +221,16 @@ export function getExpectedSlots(
 export interface MonthStats {
   year: number;
   month: number;
-  /** 列入計算的應運動日配額數（分母） */
+  /** 列入計算的應運動日配額數（分母，兩條線共用） */
   expectedTotal: number;
-  /** 已達成的配額數 */
+  /** 已達成的配額數（寬鬆版：有動就算，含 fallback 與 partial） */
   achievedTotal: number;
-  /** 達成率：已達成配額 / 應運動日配額 */
+  /** 活動達成率：有動就算 / 應運動日配額 */
   achievementRate: number;
+  /** 照表達成的配額數：source === 'group' 且 status === 'done' */
+  strictAchievedTotal: number;
+  /** 照表達成率。與 achievementRate 的差距即「有動但沒照表完成」的比例 */
+  strictAchievementRate: number;
   /** 實際有運動的日數 */
   activeDays: number;
   /** 列入計算的天數（當月計算到今天為止） */
@@ -236,11 +240,18 @@ export interface MonthStats {
 }
 
 /**
- * 計算某月的兩個指標。
+ * 計算某月的指標。達成率為雙線（2026-07-31 決議）：
+ *
+ * - 活動達成率（`achievementRate`）：`status !== 'rest'`，有動就算，含 fallback 與 partial
+ * - 照表達成率（`strictAchievementRate`）：`source === 'group'` 且 `status === 'done'`
+ *
+ * 兩者**分母相同**，`partial` 只進寬鬆版——若兩邊都算，兩條線會黏在一起，
+ * 「有動但沒照表完成」這個差距就看不出來了。
  *
  * 分母規則：尚未結束的配額不列入。'day' 配額須日期早於今天，
  * 'week' 配額須最後一個候選日早於今天；已達成者一律列入。
  * 如此當月月初不會因為分母是整月而失真。
+ * 「已達成」以**寬鬆版**判定，兩條線才會共用同一個分母。
  */
 export function computeMonthStats(
   plan: WorkoutPlan | null,
@@ -250,10 +261,14 @@ export function computeMonthStats(
   today: DateString = todayString(),
 ): MonthStats {
   const loggedDates = new Set(logs.filter((log) => log.status !== 'rest').map((log) => log.date));
+  const strictDates = new Set(
+    logs.filter((log) => log.source === 'group' && log.status === 'done').map((log) => log.date),
+  );
 
   const slots = getExpectedSlots(plan, year, month);
   let expectedTotal = 0;
   let achievedTotal = 0;
+  let strictAchievedTotal = 0;
 
   slots.forEach((slot) => {
     const achieved = slot.dates.some((date) => loggedDates.has(date));
@@ -262,6 +277,7 @@ export function computeMonthStats(
     if (!achieved && !settled) return;
     expectedTotal += 1;
     if (achieved) achievedTotal += 1;
+    if (slot.dates.some((date) => strictDates.has(date))) strictAchievedTotal += 1;
   });
 
   const monthDates = listMonthDates(year, month);
@@ -274,6 +290,8 @@ export function computeMonthStats(
     expectedTotal,
     achievedTotal,
     achievementRate: expectedTotal === 0 ? 0 : achievedTotal / expectedTotal,
+    strictAchievedTotal,
+    strictAchievementRate: expectedTotal === 0 ? 0 : strictAchievedTotal / expectedTotal,
     activeDays,
     countedDays: countedDates.length,
     activeDayRate: countedDates.length === 0 ? 0 : activeDays / countedDates.length,
