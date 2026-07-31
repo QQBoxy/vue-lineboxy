@@ -2,10 +2,13 @@
 
 > 狀態：進行中
 > 建立日期：2026-07-28
-> 最後更新：2026-07-31（schema v2 驗收通過並歸檔、達成率確定改為雙線）
+> 最後更新：2026-07-31（**批次 B 實作完成但尚未人工驗收**，決定與批次 C 一併驗收，見 §6.2、§10）
 > 用途：**交付給新的 session 接手**。本文件力求自足，接手者不需要前面的對話脈絡。
 > 前置文件：[done/2026-07-27-workout-feature-batch-a.md](done/2026-07-27-workout-feature-batch-a.md)（批次 A 的完整設計與驗證紀錄）
 > 相關文件：
+> - [2026-07-31-workout-batch-b.md](2026-07-31-workout-batch-b.md)（**批次 B：實作完成，待人工驗收**。
+>   checklist 打卡、月曆、達成率雙線。§0 是七項前置決議、§6.2 是 32 步驗收清單、
+>   §7 與 §8 記錄實作中與第一輪試用後的偏離與修正）
 > - [done/2026-07-30-workout-schema-v2.md](done/2026-07-30-workout-schema-v2.md)（schema v2 的完整設計與驗收紀錄）
 > - [done/2026-07-30-modal-scroll-lock-esc.md](done/2026-07-30-modal-scroll-lock-esc.md)（彈窗捲動鎖定與 Esc 關閉）
 
@@ -51,6 +54,7 @@
 | `6fc2ae2` | **schema v2**：同日擇一 `variants`、彈性日 `countsTowardQuota`、階段內擇一 `selection` |
 | `86dfeae` | schema v2 計畫文件與轉換後的課表 JSON |
 | `346df7a` | 課表版本改為**全域編號**，不再依課表名稱各自計數 |
+| `3a41e66` | **批次 B**：checklist 打卡、一天多筆、月曆檢視、達成率雙線（**尚未人工驗收**，見 §6.2） |
 
 分支 `main`。remote 是 `QQBoxy/vue-lineboxy`，使用者的 GitHub 帳號 `NekoBoxy` 已取得
 collaborator 權限，可直接 push 到 `main`。**但仍不要自動 push，等使用者明確指示。**
@@ -67,21 +71,26 @@ src/services/workout/
   migrate.ts           v1 → v2 就地遷移（純函式，冪等）
   display.ts           畫面用中介型別與轉換
   backup.ts            匯出／還原、距上次備份天數
+  checklist.ts         【批次 B】打卡 checklist 建表、一鍵完成、狀態推導（純函式）
+  calendar.ts          【批次 B】月曆格線、日狀態分類、resolvePlanForDate（純函式）
 
 src/components/workout/
   WeekOverview.vue     七天攤平總覽（匯入預覽與課表檢視共用）
   StageList.vue        階段與動作清單
   ExerciseDetail.vue   動作詳情彈窗（含影片連結編輯）
   ValidationReport.vue 匯入驗證結果
+  LogChecklist.vue     【批次 B】打卡清單：打勾、注意事項、實際數值
+  MonthCalendar.vue    【批次 B】月曆格線與四色
 
 src/views/
-  WorkoutView.vue        主頁：今天卡片、最近 14 天、課表清單、備份
+  WorkoutView.vue        主頁：今天卡片、月曆入口、最近 14 天、課表清單、備份
   WorkoutImportView.vue  匯入：貼上 → 驗證 → 七天預覽 → 動作庫比對 → 匯入
   WorkoutPlanView.vue    課表檢視、生效日調整
-  WorkoutLogView.vue     簡易打卡（含補登過去日期）
+  WorkoutLogView.vue     【批次 B 改寫】完整 checklist 打卡、一天多筆、補登
+  WorkoutCalendarView.vue【批次 B】月曆頁 + 該月統計
 ```
 
-路由：`/workout`、`/workout/import`、`/workout/log`、`/workout/plan/:id`
+路由：`/workout`、`/workout/import`、`/workout/log`、`/workout/plan/:id`、`/workout/calendar`
 
 跨功能的共用工具：
 
@@ -249,7 +258,13 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
 
 ## 6. 人工驗收結果
 
-批次 A、導覽列、彈窗三項於 2026-07-30 全數通過；**schema v2 尚未驗收，見 §6.1**。
+| 項目 | 狀態 |
+|---|---|
+| 批次 A、導覽列、彈窗 | 2026-07-30 全數通過 |
+| schema v2 | 2026-07-31 全數通過（§6.1） |
+| **批次 B** | **實作完成，人工驗收未做（§6.2）** |
+
+批次 A、導覽列、彈窗三項於 2026-07-30 全數通過。
 
 **批次 A：全數通過。** 七天總覽與原文相符、「六或日」正確呈現為擇一、微型課表有收錄、
 動作庫去重合理、循環訓練組數與組間休息正確、防護重點在群組層與動作層都看得到。
@@ -281,13 +296,53 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
 
 驗收時確認仍存在的資訊缺口見 §9.1，**不阻擋後續開發**。
 
+### 6.2 批次 B：待驗收（2026-07-31 決定延後）
+
+自動驗證全數通過：`vue-tsc` / `eslint`（零警告）/ `vite build`，
+外加 esbuild 純函式腳本 **63 項全過**（涵蓋 `choose-one` 只勾第一項、時間單位 120 秒分界、
+`flex` 優先於 `plan-done`、達成率雙線共用分母等）。
+
+**人工驗收因時間因素延後，決定與批次 C 一併進行。**
+32 步的逐步操作清單在
+[2026-07-31-workout-batch-b.md §6.2](2026-07-31-workout-batch-b.md)，
+分成 A 入口 / B checklist / C variant / D NEAT 日 / E 時間單位 / F 一天多筆 /
+G 月曆四色 / H 達成率雙線八段。
+
+第一輪試用已回報並修正的六點（根因與解法見該文件 §8）：
+
+| 回報 | 修正 |
+|---|---|
+| 找不到月曆入口 | 「今天」卡片下方改為全寬按鈕「📅 月曆檢視」 |
+| 存檔後停在原頁很怪 | 改回導向 `/workout?saved=...`，首頁顯示綠色 flash |
+| 存了飛輪卻回填 MV 舞蹈 | 非回填錯誤：當天有兩筆而固定開 `dayLogs[0]`。改為預設開 `updatedAt` 最大的那筆 |
+| 時間單位換算失敗（300 秒被當成 300 分） | 單位改成輸入框內右側後綴並用主色加深；提示行補上課表原文規格 |
+| 存第二筆時沒有提示 | 「當日已有 N 筆」獨立成黃色橫幅卡片，明講正在編輯第幾筆 |
+| 找不到時間欄位 | 「調整」改成有框按鈕；**時間型動作預設展開**，次數型維持收起 |
+
+**驗收時請特別留意**這六點都是使用者實際踩到的，是回歸測試的重點；
+其中「預設開最新一筆」與「一天多筆」交互作用最複雜，建議用**乾淨的日期**測。
+
 ---
 
 ## 7. 路線圖
 
 依序執行。第 2 項可隨時插隊。
 
-### 批次 B：打卡 checklist 與日曆
+### 批次 B：打卡 checklist 與日曆 — **實作完成，待驗收**
+
+> 2026-07-31 完成實作，設計與驗收清單見
+> [2026-07-31-workout-batch-b.md](2026-07-31-workout-batch-b.md)。
+> 以下保留原始需求描述作為對照，**下方「待決議」三處已全部拍板**，決議如下：
+>
+> | 待決議 | 決議 |
+> |---|---|
+> | fallback／variant 重疊時 `source` 記什麼 | **以打卡入口決定**（採用本節原建議）：從當日課表選 variant → `'group'`；從備用課表清單主動選 → `'fallback'` |
+> | 一鍵完成遇 `choose-one` | **只勾第一項**，階段標示「擇一即可」。全勾會產生「兩個動作都做了」的假資料，直接汙染批次 C 的趨勢圖 |
+> | 一鍵完成遇多 variant | **必須先選 variant，未選前按鈕不出現**，且不預選第一個。`variantId` 是歷史事實，不能猜 |
+> | 無項目階段（NEAT） | **顯示為說明區塊，不給打勾框、不進完成判定**。另補一條：整份都沒有可勾項目的日子，`deriveStatus()` 直接回 `'done'`，否則那天永遠打不了卡 |
+>
+> 額外決定：`status` 由勾選結果**自動推導**，不給手動按鈕（`freeform` 除外）。
+> 讓使用者在只勾三項時按「完成」會讓批次 C 的嚴格線失去意義。
 
 **目標**：把目前的簡易打卡升級成完整版，並補上日曆檢視。
 
@@ -350,9 +405,12 @@ Pixel + Chrome 沒有 iOS Safari 的七天自動清除問題。
 ### 批次 C：統計與趨勢
 
 - 年檢視 heatmap（類似 GitHub contribution graph）
-- **達成率改為雙線**（2026-07-31 決議，見本節「達成率雙線」）
+- ~~**達成率改為雙線**~~ **已於批次 B 一併實作，待驗收**：
+  `computeMonthStats()` 新增 `strictAchievedTotal` / `strictAchievementRate`（純加法，
+  既有 `achievementRate` 語意不變），雙段進度條已接在 `WorkoutCalendarView` 上。
+  規格仍見本節下方「達成率雙線」
 - 運動日佔比 = 實際運動日 / 當月天數（分母算到今天為止）。
-  `schedule.ts` 的 `computeMonthStats()` 已實作，直接接畫面
+  `schedule.ts` 的 `computeMonthStats()` 已實作，已接上月曆頁
 - 課表版本 diff：匯入新版時比對出新增／移除／修改的動作，
   比對層級要下探到 `variants`。`avoidances` 掃描已在 `parsePlan.ts` 實作，可直接重用。
   AI 重出課表常會悄悄改掉沒要它改的東西
@@ -462,20 +520,32 @@ Google 已宣布淘汰 Fit 的 REST API、改推 Android 的 Health Connect，
 
 ## 10. 建議的下一步
 
-批次 A 與 schema v2 都已驗收通過（§6、§6.1），接下來：
+批次 A 與 schema v2 已驗收通過（§6、§6.1）。
+**批次 B 已實作完成但人工驗收未做**，使用者決定與批次 C 一起驗（§6.2）。
 
-1. 確認批次 B 的三個待決議：fallback／variant 的 `source` 判定、
-   「一鍵全部完成」遇到 `choose-one` 與多 variant 的行為、
-   以及碰到無項目階段（NEAT）算不算完成（見 §7 批次 B）
-2. 做 **批次 B**，功能完整後才知道真正需要同步什麼。
-   起手處是 `WorkoutLogView.vue` 與動作層注意事項的顯示（見 §6）
-3. Drive 備份可視使用者對資料遺失的擔憂程度隨時插隊
-4. §9.1 的待補資訊隨時可補，其中影片連結不需重匯課表
+接手者請照這個順序：
 
-達成率雙線屬批次 C，但它**只改 `computeMonthStats()`**、不依賴批次 B 的 UI，
-若想早點看到數字也可以提前做——前提是批次 B 已經會忠實記錄 `source` 與 `status`，
-否則嚴格版算出來會是一條假線。
+1. **先讀** [2026-07-31-workout-batch-b.md](2026-07-31-workout-batch-b.md) §0（七項前置決議）
+   與 §7、§8（實作中與試用後的偏離）。§8 的六點是使用者實際踩到的坑，
+   做批次 C 時**不要不小心改回去**
+2. **做批次 C**（本節「批次 C」）。達成率雙線已在批次 B 一併完成，
+   剩下年檢視 heatmap、課表版本 diff、動作進步趨勢圖
+3. **批次 B + C 一起人工驗收**：
+   - 批次 B 的 32 步清單在 batch-b 文件 §6.2
+   - 批次 C 的清單屆時另行整理
+   - 兩份都通過後，把**兩份計畫文件一起移到 `doc/plan/done/`**，
+     並回頭更新本文件 §2.1 的 commit 表與 §6
+4. Drive 備份可視使用者對資料遺失的擔憂程度隨時插隊
+5. §9.1 的待補資訊隨時可補，其中影片連結不需重匯課表
 
-**push 狀態（2026-07-31）**：`main` 有 commit **尚未推送**至 `origin/main`，
-接手前請先 `git log origin/main..main` 確認實際落差。
+**做批次 C 前必須知道的兩件事**：
+
+- 動作進步趨勢圖的資料來源是 `WorkoutLog.items[].actual*`。批次 B 刻意**不預填**
+  課表規格（留空 = 照課表做），所以趨勢圖要自己決定「留空」怎麼呈現——
+  是視為課表值、還是斷點。預填會產生一條假的平線，這是刻意避開的
+- `LogItem` 連**未勾的項目也會寫入**（`done: false`），這樣才分得出
+  「這天沒做這一項」與「那份課表根本沒有這一項」。統計時記得過濾 `done`
+
+**push 狀態（2026-07-31）**：`main` 有數個 commit **尚未推送**至 `origin/main`，
+含批次 B 的 `3a41e66`。接手前請先 `git log origin/main..main` 確認實際落差。
 後續改動仍**不要自動 push**，等使用者明確指示。
