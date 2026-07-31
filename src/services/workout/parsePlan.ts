@@ -866,10 +866,12 @@ export async function commitDraftPlan(
   };
 
   const existingPlans = await repository.listPlans();
-  const version =
-    existingPlans
-      .filter((plan) => plan.name === draft.name)
-      .reduce((max, plan) => Math.max(max, plan.version), 0) + 1;
+  // 版號不分課表名稱、一律全域遞增。AI 每次重出課表常順手改掉名字，
+  // 依名稱分群會讓版號重新從 1 開始，看不出這其實是第幾次調整。
+  //
+  // 日後課表穩定、只剩小幅微調時，可加回依名稱分群，讓不同系列各自計版：
+  //   .filter((plan) => plan.name === draft.name)
+  const version = existingPlans.reduce((max, plan) => Math.max(max, plan.version), 0) + 1;
 
   const resolveStage = (stage: DraftStage): Stage => ({
     id: newId(),
