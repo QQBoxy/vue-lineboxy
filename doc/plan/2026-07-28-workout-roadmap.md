@@ -53,7 +53,7 @@
 | `86dfeae` | schema v2 計畫文件與轉換後的課表 JSON |
 | `346df7a` | 課表版本改為**全域編號**，不再依課表名稱各自計數 |
 | `3a41e66` | **批次 B**：checklist 打卡、一天多筆、月曆檢視、達成率雙線 |
-| (即將發版) | **批次 C**：年度熱力圖、匯入課表版本 Diff 報告、動作進步趨勢圖、與圖示說明 |
+| `b8e608a` | **批次 C**：年度熱力圖、匯入課表版本 Diff 報告、動作進步趨勢圖、與圖示說明 |
 
 分支 `main`。remote 是 `QQBoxy/vue-lineboxy`，使用者的 GitHub 帳號 `NekoBoxy` 已取得
 collaborator 權限，可直接 push 到 `main`。**但仍不要自動 push，等使用者明確指示。**
@@ -535,6 +535,6 @@ Google 已宣布淘汰 Fit 的 REST API、改推 Android 的 Health Connect，
 - `LogItem` 連**未勾的項目也會寫入**（`done: false`），這樣才分得出
   「這天沒做這一項」與「那份課表根本沒有這一項」。統計時記得過濾 `done`
 
-**push 狀態（2026-07-31）**：`main` 有數個 commit **尚未推送**至 `origin/main`，
-含批次 B 的 `3a41e66`。接手前請先 `git log origin/main..main` 確認實際落差。
+**push 狀態（2026-08-09）**：`main` 有數個 commit **尚未推送**至 `origin/main`，
+含批次 B（`3a41e66`）與批次 C（`b8e608a`）。接手前請先 `git log origin/main..main` 確認實際落差。
 後續改動仍**不要自動 push**，等使用者明確指示。
