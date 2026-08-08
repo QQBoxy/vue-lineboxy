@@ -15,7 +15,7 @@ import {
 import type { DateString, WorkoutLog, WorkoutMeta, WorkoutPlan } from '@/services/workout/types';
 
 /** 首頁顯示的補登範圍，涵蓋完整的上一週 */
-const RECENT_DAYS = 14;
+const RECENT_DAYS = 7;
 
 const route = useRoute();
 const personStore = usePersonStore();
@@ -195,14 +195,16 @@ const handleImportFile = async (event: Event) => {
               </RouterLink>
             </div>
 
-            <RouterLink
-              v-for="fallback in todayFallbacks"
-              :key="fallback.id"
-              class="fallback-btn"
-              :to="`/workout/log?date=${today}`"
-            >
-              今天很忙 → 改做 {{ fallback.label }}
-            </RouterLink>
+            <div v-if="todayFallbacks.length > 0" class="fallback-actions">
+              <RouterLink
+                v-for="fallback in todayFallbacks"
+                :key="fallback.id"
+                class="fallback-btn"
+                :to="`/workout/log?date=${today}`"
+              >
+                ⚡ {{ fallback.label }}
+              </RouterLink>
+            </div>
           </template>
 
           <template v-else-if="todayPlan">
@@ -222,17 +224,26 @@ const handleImportFile = async (event: Event) => {
           </template>
         </section>
 
-        <!-- 月曆入口。刻意做成全寬按鈕：藏在標題旁的小連結沒有人會看到 -->
-        <RouterLink class="calendar-link" to="/workout/calendar">
-          <span class="calendar-icon">📅</span>
-          <span class="calendar-main">
-            <span class="calendar-title">月曆檢視</span>
-            <span class="calendar-sub">看整個月的達成情況，點任一天可補登</span>
-          </span>
-          <span class="chevron">›</span>
-        </RouterLink>
+        <!-- 月曆與年度檢視入口 -->
+        <div class="calendar-links-row">
+          <RouterLink class="calendar-link" to="/workout/calendar">
+            <span class="calendar-icon">📅</span>
+            <span class="calendar-main">
+              <span class="calendar-title">月曆檢視</span>
+              <span class="calendar-sub">月度達成狀況</span>
+            </span>
+          </RouterLink>
 
-        <!-- 最近 14 天：補登入口 -->
+          <RouterLink class="calendar-link" to="/workout/year">
+            <span class="calendar-icon">🗓️</span>
+            <span class="calendar-main">
+              <span class="calendar-title">年度檢視</span>
+              <span class="calendar-sub">全年分佈統計</span>
+            </span>
+          </RouterLink>
+        </div>
+
+        <!-- 最近 7 天：補登入口 -->
         <section class="list-card">
           <div class="section-head">
             <h2>最近 {{ RECENT_DAYS }} 天 · 已記錄 {{ loggedCount }} 天</h2>
@@ -242,22 +253,24 @@ const handleImportFile = async (event: Event) => {
           <ul class="recent-list">
             <li v-for="row in recentRows" :key="row.date">
               <RouterLink
-                class="recent-row"
+                class="recent-card"
                 :class="{ 'recent-logged': row.logged }"
                 :to="`/workout/log?date=${row.date}`"
               >
-                <span class="recent-mark">{{ row.logged ? '✅' : row.isRest ? '·' : '○' }}</span>
-                <span class="recent-main">
-                  <span class="recent-date">
-                    {{ row.date.slice(5) }}（{{ row.weekdayLabel.slice(1) }}）
+                <div class="recent-card-head">
+                  <div class="head-top">
+                    <span class="recent-date">{{ row.date.slice(5) }}</span>
                     <span v-if="row.date === today" class="today-tag">今天</span>
-                  </span>
-                  <span class="recent-plan" :class="{ 'recent-rest': row.isRest }">
-                    {{ row.planLabel }}
-                  </span>
+                  </div>
+                  <div class="head-bottom">
+                    <span class="recent-weekday">({{ row.weekdayLabel.slice(1) }})</span>
+                    <span class="recent-mark">{{ row.logged ? '✅' : row.isRest ? '·' : '○' }}</span>
+                  </div>
+                </div>
+                <span class="recent-plan" :class="{ 'recent-rest': row.isRest }">
+                  {{ row.planLabel }}
                 </span>
-                <span class="recent-log">{{ row.logLabel }}</span>
-                <span class="chevron">›</span>
+                <span class="recent-log">{{ row.logLabel || '未打卡' }}</span>
               </RouterLink>
             </li>
           </ul>
@@ -478,18 +491,27 @@ const handleImportFile = async (event: Event) => {
   cursor: not-allowed;
 }
 
+.fallback-actions {
+  margin-top: 0.85rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .fallback-btn {
-  margin-top: 0.6rem;
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0.4rem;
+  text-align: center;
   border-radius: 10px;
   border: 1px dashed #94a3b8;
   background: #f8fafc;
   color: #475569;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -504,8 +526,14 @@ const handleImportFile = async (event: Event) => {
   color: #0f766e;
 }
 
-.calendar-link {
+.calendar-links-row {
+  display: flex;
+  gap: 0.85rem;
   margin-top: 0.85rem;
+}
+
+.calendar-link {
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   gap: 0.7rem;
@@ -555,20 +583,33 @@ const handleImportFile = async (event: Event) => {
 .recent-list {
   list-style: none;
   margin: 0.6rem 0 0;
-  padding: 0;
+  padding: 0 0 0.5rem 0;
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  flex-direction: row;
+  gap: 0.6rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
-.recent-row {
+.recent-list > li {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
   display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 46px;
-  padding: 0.4rem 0.6rem;
+}
+
+.recent-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 145px;
+  min-height: 85px;
+  padding: 0.6rem 0.7rem;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
+  box-sizing: border-box;
   background: #f8fafc;
   color: #1f2937;
   text-decoration: none;
@@ -577,7 +618,7 @@ const handleImportFile = async (event: Event) => {
     border-color 0.18s ease;
 }
 
-.recent-row:hover {
+.recent-card:hover {
   background: #ecfeff;
   border-color: #0f766e;
 }
@@ -587,29 +628,57 @@ const handleImportFile = async (event: Event) => {
   border-color: #99f6e4;
 }
 
-.recent-mark {
-  width: 1.3rem;
-  text-align: center;
-  color: #94a3b8;
-  flex-shrink: 0;
-}
-
-.recent-main {
+.recent-card-head {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
-  min-width: 0;
+  margin-bottom: 0.45rem;
+}
+
+.head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.head-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recent-mark {
+  font-size: 0.85rem;
+  color: #94a3b8;
 }
 
 .recent-date {
-  font-size: 0.86rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #334155;
 }
 
+.recent-weekday {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.today-tag {
+  margin-left: 0.3rem;
+  padding: 0 0.3rem;
+  border-radius: 6px;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
 .recent-plan {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #0f766e;
+  line-height: 1.3;
+  margin-bottom: 0.2rem;
 }
 
 .recent-rest {
@@ -617,21 +686,13 @@ const handleImportFile = async (event: Event) => {
 }
 
 .recent-log {
-  margin-left: auto;
+  margin-top: auto;
   font-size: 0.78rem;
   color: #115e59;
   font-weight: 600;
   white-space: nowrap;
-}
-
-.today-tag {
-  margin-left: 0.2rem;
-  padding: 0 0.3rem;
-  border-radius: 6px;
-  background: #0f766e;
-  color: #ffffff;
-  font-size: 0.68rem;
-  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .list-card h2 {
