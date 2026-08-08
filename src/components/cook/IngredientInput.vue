@@ -127,7 +127,12 @@ const backToUnitList = () => {
       />
       <button class="icon-btn" type="button" title="改用候選單位" @click="backToUnitList">▾</button>
     </template>
-    <select v-else class="text-input unit-select" :value="props.modelValue.unit ?? ''" @change="handleUnitSelect">
+    <select
+      v-else
+      class="text-input unit-select"
+      :value="props.modelValue.unit ?? ''"
+      @change="handleUnitSelect"
+    >
       <option value="">單位</option>
       <option v-for="unit in unitOptions" :key="unit.code" :value="unit.code">
         {{ unit.label }}
@@ -258,7 +263,9 @@ const backToUnitList = () => {
   line-height: 1;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .icon-btn:hover {

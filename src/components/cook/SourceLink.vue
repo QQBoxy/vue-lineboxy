@@ -58,7 +58,9 @@ const thumbnailFailed = ref(false);
   background: #f8fafc;
   color: #1f2937;
   text-decoration: none;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .source-link:hover {

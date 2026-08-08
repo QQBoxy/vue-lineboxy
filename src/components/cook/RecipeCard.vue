@@ -27,7 +27,9 @@ const countText = computed(() =>
       <span class="recipe-meta">
         <span v-if="mealText" class="meal-tag">{{ mealText }}</span>
         {{ countText }}
-        <span v-if="props.recipe.lastCookedAt"> · 上次 {{ props.recipe.lastCookedAt.slice(5) }}</span>
+        <span v-if="props.recipe.lastCookedAt">
+          · 上次 {{ props.recipe.lastCookedAt.slice(5) }}</span
+        >
       </span>
     </span>
     <span class="chevron">›</span>
@@ -47,7 +49,9 @@ const countText = computed(() =>
   background: #f8fafc;
   color: #1f2937;
   text-decoration: none;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .recipe-row:hover {

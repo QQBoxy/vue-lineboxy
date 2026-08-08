@@ -80,7 +80,9 @@ onUnmounted(() => popModal(modalEntry));
   line-height: 1;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .confirm-trigger-btn:hover {
@@ -106,7 +108,10 @@ onUnmounted(() => popModal(modalEntry));
   line-height: 1;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .action-btn:hover {

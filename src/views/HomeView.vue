@@ -38,7 +38,10 @@ const handleBrightnessChange = async () => {
           <button class="action-btn" @click="handleClick('vacuum/power/inTopic', 'start')">
             開始清掃
           </button>
-          <button class="action-btn action-btn-outline" @click="handleClick('vacuum/power/inTopic', 'return_to_base')">
+          <button
+            class="action-btn action-btn-outline"
+            @click="handleClick('vacuum/power/inTopic', 'return_to_base')"
+          >
             回充電座
           </button>
         </div>
@@ -50,7 +53,10 @@ const handleBrightnessChange = async () => {
           <button class="action-btn" @click="handleClick('duckfan/power/inTopic', '1')">
             打開電扇
           </button>
-          <button class="action-btn action-btn-outline" @click="handleClick('duckfan/power/inTopic', '0')">
+          <button
+            class="action-btn action-btn-outline"
+            @click="handleClick('duckfan/power/inTopic', '0')"
+          >
             關閉電扇
           </button>
         </div>
@@ -62,7 +68,10 @@ const handleBrightnessChange = async () => {
           <button class="action-btn" @click="handleClick('lightboxy/switch/inTopic', '1')">
             打開小夜燈
           </button>
-          <button class="action-btn action-btn-outline" @click="handleClick('lightboxy/switch/inTopic', '0')">
+          <button
+            class="action-btn action-btn-outline"
+            @click="handleClick('lightboxy/switch/inTopic', '0')"
+          >
             關閉小夜燈
           </button>
         </div>
@@ -74,8 +83,15 @@ const handleBrightnessChange = async () => {
 
         <div class="slider-row">
           <label for="night-light-brightness">亮度 ✨：{{ brightness }}</label>
-          <input id="night-light-brightness" v-model.number="brightness" class="brightness-slider" type="range" min="0"
-            max="255" @change="handleBrightnessChange" />
+          <input
+            id="night-light-brightness"
+            v-model.number="brightness"
+            class="brightness-slider"
+            type="range"
+            min="0"
+            max="255"
+            @change="handleBrightnessChange"
+          />
         </div>
       </section>
     </template>
@@ -181,4 +197,3 @@ const handleBrightnessChange = async () => {
   }
 }
 </style>
-

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import type { DisplayItem } from '@/services/workout/display';
 import { popModal, pushModal } from '@/utils/modalStack';
 
@@ -12,6 +13,8 @@ const emit = defineEmits<{
   close: [];
   'update-video': [exerciseId: string, videoUrl: string];
 }>();
+
+const router = useRouter();
 
 const editingVideo = ref(false);
 const videoInput = ref('');
@@ -33,6 +36,13 @@ const submitVideo = () => {
 
 const handleClose = () => {
   emit('close');
+};
+
+const goToTrend = () => {
+  handleClose();
+  if (props.item.exerciseId) {
+    router.push(`/workout/trend/${props.item.exerciseId}`);
+  }
 };
 
 /** 編輯影片連結時，Esc 先取消編輯，避免打了一半的網址被一鍵清掉 */
@@ -59,7 +69,12 @@ onUnmounted(() => popModal(modalEntry));
             <h2>{{ props.item.name }}</h2>
             <p v-if="props.item.nameEn" class="name-en">{{ props.item.nameEn }}</p>
           </div>
-          <button class="close-btn" type="button" @click="handleClose">✕</button>
+          <div class="head-actions">
+            <button v-if="props.item.exerciseId" class="trend-btn" type="button" @click="goToTrend">
+              📈 趨勢
+            </button>
+            <button class="close-btn" type="button" @click="handleClose">✕</button>
+          </div>
         </header>
 
         <section class="spec-row">
@@ -190,6 +205,28 @@ onUnmounted(() => popModal(modalEntry));
   margin: 0.2rem 0 0;
   font-size: 0.85rem;
   color: #64748b;
+}
+
+.head-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.trend-btn {
+  border: 1px solid #0f766e;
+  background: #f0fdfa;
+  border-radius: 10px;
+  height: 36px;
+  padding: 0 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f766e;
+  cursor: pointer;
+}
+
+.trend-btn:hover {
+  background: #ccfbf1;
 }
 
 .close-btn {

@@ -120,11 +120,17 @@ onMounted(() => {
       <h2>
         <RouterLink class="crumb-link" to="/kanban">Kanbans</RouterLink>
         <span class="crumb-sep">➡️</span>
-        <RouterLink class="crumb-link" :to="`/kanban/${route.params.boardId}`">{{ kanbanBoardName }}</RouterLink>
+        <RouterLink class="crumb-link" :to="`/kanban/${route.params.boardId}`">{{
+          kanbanBoardName
+        }}</RouterLink>
         <span class="crumb-sep">➡️</span>
         <span>{{ listName }}</span>
       </h2>
-      <ModalView class="action-btn-wrap" :cols="{ title: 'Card Title', description: 'Card Description' }" @submit="handleCreateKanbanCard">
+      <ModalView
+        class="action-btn-wrap"
+        :cols="{ title: 'Card Title', description: 'Card Description' }"
+        @submit="handleCreateKanbanCard"
+      >
         Create Card
       </ModalView>
     </section>
@@ -142,8 +148,17 @@ onMounted(() => {
           <div class="card-actions">
             <ModalView
               class="action-btn-wrap action-btn-wrap-outline"
-              :cols="{ title: 'Kanban Card Title', description: 'Kanban Card Description', order: 'Kanban Card Order' }"
-              :data="{ id: card.id, title: card.title, description: card.description, order: card.order }"
+              :cols="{
+                title: 'Kanban Card Title',
+                description: 'Kanban Card Description',
+                order: 'Kanban Card Order',
+              }"
+              :data="{
+                id: card.id,
+                title: card.title,
+                description: card.description,
+                order: card.order,
+              }"
               trigger-variant="outline"
               @submit="handleEditKanbanCard"
             >
@@ -151,7 +166,7 @@ onMounted(() => {
             </ModalView>
             <ConfirmModalView
               title="Delete card?"
-              :message='`Delete \"${card.title}\"? This action cannot be undone.`'
+              :message="`Delete \&quot;${card.title}\&quot;? This action cannot be undone.`"
               confirm-text="Confirm Delete"
               @confirmed="handleDeleteKanbanCard(card.id)"
             >
@@ -312,7 +327,10 @@ onMounted(() => {
   line-height: 1;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .action-btn-wrap :deep(button):hover {

@@ -128,9 +128,7 @@ export class LocalWorkoutRepository implements WorkoutRepository {
       throw new Error('此課表版本已有打卡紀錄引用，不可修改；請改為匯入新版本。');
     }
 
-    const next = existing
-      ? all.map((item) => (item.id === plan.id ? plan : item))
-      : [...all, plan];
+    const next = existing ? all.map((item) => (item.id === plan.id ? plan : item)) : [...all, plan];
     write(KEY_PLANS, next);
     return plan;
   }

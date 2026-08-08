@@ -41,10 +41,7 @@ export interface CalendarDay {
  * localRepository.getPlanForDate() 的純函式版：月曆會跨越生效日，
  * 每一格都要各自解析，不能整月共用同一份課表。
  */
-export function resolvePlanForDate(
-  plans: WorkoutPlan[],
-  date: DateString,
-): WorkoutPlan | null {
+export function resolvePlanForDate(plans: WorkoutPlan[], date: DateString): WorkoutPlan | null {
   let best: WorkoutPlan | null = null;
   plans.forEach((plan) => {
     if (plan.effectiveFrom > date) return;

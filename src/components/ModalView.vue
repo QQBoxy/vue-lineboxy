@@ -61,11 +61,18 @@ const handleSubmit = () => {
       <div class="modal-card">
         <div v-for="(col, index) in Object.keys(props.cols)" :key="index" class="field-row">
           <label class="field-label" :for="`modal-input-${index}`">{{ props.cols[col] }}</label>
-          <input :id="`modal-input-${index}`" v-model="result[col]" class="field-input" type="text" />
+          <input
+            :id="`modal-input-${index}`"
+            v-model="result[col]"
+            class="field-input"
+            type="text"
+          />
         </div>
         <div class="modal-actions">
           <button class="action-btn" type="button" @click.stop="handleSubmit">Submit</button>
-          <button class="action-btn action-btn-outline" type="button" @click.stop="closeModal">Cancel</button>
+          <button class="action-btn action-btn-outline" type="button" @click.stop="closeModal">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -92,7 +99,10 @@ const handleSubmit = () => {
   line-height: 1;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .modal-trigger-btn:hover,
@@ -162,7 +172,9 @@ const handleSubmit = () => {
   color: #1f2937;
   font-size: 0.96rem;
   outline: none;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .field-input:focus {

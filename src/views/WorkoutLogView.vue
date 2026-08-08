@@ -71,9 +71,7 @@ const fallbacks = computed(() => plan.value?.fallbackRoutines ?? []);
 const weekdayLabel = computed(() => WEEKDAY_LABELS[isoWeekdayOf(date.value)]);
 const isFuture = computed(() => date.value > today);
 
-const activeLog = computed(
-  () => dayLogs.value.find((log) => log.id === activeLogId.value) ?? null,
-);
+const activeLog = computed(() => dayLogs.value.find((log) => log.id === activeLogId.value) ?? null);
 
 /** 目前這筆是當日的第幾筆（1 起算）。新增中回傳 dayLogs.length + 1 */
 const activeIndex = computed(() => {
@@ -352,7 +350,6 @@ const logSummary = (log: WorkoutLog): string => {
           {{ date }}（{{ weekdayLabel }}）
           <span v-if="date === today">· 今天</span>
         </p>
-
       </section>
 
       <!-- 一天可以有多筆（早上課表 + 晚上散步）。刻意做成明顯橫幅，
@@ -361,12 +358,14 @@ const logSummary = (log: WorkoutLog): string => {
         <p class="multi-banner">
           <span class="multi-icon">📌</span>
           <span v-if="activeLog">
-            這天已經有 <strong>{{ dayLogs.length }}</strong> 筆紀錄，
-            目前正在<strong>編輯第 {{ activeIndex }} 筆</strong>。
+            這天已經有 <strong>{{ dayLogs.length }}</strong> 筆紀錄， 目前正在<strong
+              >編輯第 {{ activeIndex }} 筆</strong
+            >。
           </span>
           <span v-else>
-            這天已經有 <strong>{{ dayLogs.length }}</strong> 筆紀錄，
-            現在要新增的是<strong>第 {{ activeIndex }} 筆</strong>。
+            這天已經有 <strong>{{ dayLogs.length }}</strong> 筆紀錄， 現在要新增的是<strong
+              >第 {{ activeIndex }} 筆</strong
+            >。
           </span>
         </p>
 
@@ -463,11 +462,7 @@ const logSummary = (log: WorkoutLog): string => {
             </label>
 
             <label class="option-row" :class="{ 'option-active': source === 'freeform' }">
-              <input
-                type="radio"
-                :checked="source === 'freeform'"
-                @change="handleSelectFreeform"
-              />
+              <input type="radio" :checked="source === 'freeform'" @change="handleSelectFreeform" />
               <span class="option-main">
                 <span class="option-title">自由運動</span>
                 <span class="option-sub">不在課表內的運動，例如散步、伸展</span>
@@ -827,7 +822,9 @@ const logSummary = (log: WorkoutLog): string => {
   border-radius: 10px;
   background: #f8fafc;
   cursor: pointer;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
 }
 
 .option-row:hover {

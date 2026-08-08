@@ -723,18 +723,13 @@ function checkVariantMinutes(
  * 禁忌動作掃描。
  * AI 重出課表時最容易悄悄把被排除的動作放回來，靠人眼很難每次都抓到。
  */
-function checkAvoidances(
-  drafts: ExerciseDraft[],
-  avoidances: string[],
-  warnings: Issue[],
-): void {
+function checkAvoidances(drafts: ExerciseDraft[], avoidances: string[], warnings: Issue[]): void {
   if (avoidances.length === 0) return;
 
   avoidances.forEach((word) => {
     const hits = drafts
       .filter(
-        (draft) =>
-          draft.name.includes(word) || draft.steps.some((step) => step.includes(word)),
+        (draft) => draft.name.includes(word) || draft.steps.some((step) => step.includes(word)),
       )
       .map((draft) => draft.name);
     if (hits.length === 0) return;

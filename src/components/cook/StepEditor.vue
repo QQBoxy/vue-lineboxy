@@ -194,7 +194,9 @@ const removeStep = (index: number) => {
   white-space: nowrap;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .ghost-btn:hover {
@@ -234,7 +236,9 @@ const removeStep = (index: number) => {
   font-weight: 700;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .add-btn:hover {

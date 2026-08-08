@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePersonStore } from '@/stores/person';
 import ExerciseDetail from '@/components/workout/ExerciseDetail.vue';
+import PlanDiffReport from '@/components/workout/PlanDiffReport.vue';
 import StageList from '@/components/workout/StageList.vue';
 import ValidationReport from '@/components/workout/ValidationReport.vue';
 import WeekOverview from '@/components/workout/WeekOverview.vue';
@@ -15,6 +16,7 @@ import {
   type DisplayStage,
   type DisplayVariant,
 } from '@/services/workout/display';
+import { diffPlans, type PlanDiff } from '@/services/workout/diff';
 import { formatRange, formatWeekdays } from '@/services/workout/schedule';
 import type { ExerciseDef, WorkoutPlan } from '@/services/workout/types';
 
@@ -139,6 +141,16 @@ const handleValidate = () => {
     existingExercises: existingExercises.value,
   });
 };
+
+const latestOldPlan = computed(() => {
+  if (existingPlans.value.length === 0) return null;
+  return [...existingPlans.value].sort((a, b) => b.version - a.version)[0];
+});
+
+const planDiff = computed<PlanDiff | null>(() => {
+  if (!result.value?.plan || !latestOldPlan.value) return null;
+  return diffPlans(latestOldPlan.value, result.value.plan, existingExercises.value);
+});
 
 const handleClear = () => {
   rawText.value = '';
@@ -265,7 +277,12 @@ const handleCommit = async () => {
           placeholder="把 AI 產生的課表 JSON 貼在這裡…"
         ></textarea>
         <div class="card-actions">
-          <button class="action-btn" type="button" :disabled="!rawText.trim()" @click="handleValidate">
+          <button
+            class="action-btn"
+            type="button"
+            :disabled="!rawText.trim()"
+            @click="handleValidate"
+          >
             驗證並預覽
           </button>
           <button class="action-btn action-btn-outline" type="button" @click="handleClear">
@@ -290,9 +307,15 @@ const handleCommit = async () => {
         </section>
 
         <template v-if="result.plan">
-          <!-- 步驟 3：七天預覽 -->
+          <!-- 步驟 3：版本差異比對 -->
+          <section class="card" v-if="planDiff">
+            <h2>3. 版本差異比對</h2>
+            <PlanDiffReport :diff="planDiff" />
+          </section>
+
+          <!-- 步驟 4：七天預覽 -->
           <section class="card">
-            <h2>3. 七天預覽</h2>
+            <h2>{{ planDiff ? '4' : '3' }}. 七天預覽</h2>
             <p class="hint">請逐日確認「哪天該做什麼」與原始課表一致。</p>
             <WeekOverview
               :groups="weekGroups"
@@ -349,9 +372,9 @@ const handleCommit = async () => {
             </div>
           </section>
 
-          <!-- 步驟 4：動作庫比對 -->
+          <!-- 步驟 5：動作庫比對 -->
           <section class="card">
-            <h2>4. 動作庫比對</h2>
+            <h2>{{ planDiff ? '5' : '4' }}. 動作庫比對</h2>
             <p class="hint">沿用既有 {{ reusedCount }} 個、新增 {{ newCount }} 個動作。</p>
 
             <div v-if="similarMatches.length > 0" class="similar-block">
@@ -393,9 +416,9 @@ const handleCommit = async () => {
             </ul>
           </section>
 
-          <!-- 步驟 5：匯入 -->
+          <!-- 步驟 6：匯入 -->
           <section class="card">
-            <h2>5. 確認匯入</h2>
+            <h2>{{ planDiff ? '6' : '5' }}. 確認匯入</h2>
             <p class="hint">
               匯入後將以「{{ result.plan.effectiveFrom }}」為生效日；
               該日起的打卡會連結到這份新課表，先前的紀錄仍連結舊課表。
@@ -632,7 +655,9 @@ const handleCommit = async () => {
   cursor: pointer;
   touch-action: manipulation;
   text-align: left;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
 }
 
 .variant-btn:hover {

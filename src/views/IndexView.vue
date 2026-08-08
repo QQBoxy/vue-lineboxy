@@ -47,26 +47,48 @@ onBeforeUnmount(stopAfterEach);
           Home
         </RouterLink>
         <template v-if="personStore.person.isActive">
-          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path === '/person' }" to="/person">
+          <RouterLink
+            class="nav-link"
+            :class="{ 'nav-link-active': route.path === '/person' }"
+            to="/person"
+          >
             Person
           </RouterLink>
-          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path.startsWith('/kanban') }" to="/kanban">
+          <RouterLink
+            class="nav-link"
+            :class="{ 'nav-link-active': route.path.startsWith('/kanban') }"
+            to="/kanban"
+          >
             Kanban
           </RouterLink>
-          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path === '/total' }" to="/total">
+          <RouterLink
+            class="nav-link"
+            :class="{ 'nav-link-active': route.path === '/total' }"
+            to="/total"
+          >
             Total
           </RouterLink>
-          <RouterLink class="nav-link" :class="{ 'nav-link-active': route.path.startsWith('/workout') }" to="/workout">
+          <RouterLink
+            class="nav-link"
+            :class="{ 'nav-link-active': route.path.startsWith('/workout') }"
+            to="/workout"
+          >
             Workout
           </RouterLink>
-          <RouterLink class="nav-link nav-link-cook" :class="{ 'nav-link-active': route.path.startsWith('/cook') }"
-            to="/cook">
+          <RouterLink
+            class="nav-link nav-link-cook"
+            :class="{ 'nav-link-active': route.path.startsWith('/cook') }"
+            to="/cook"
+          >
             獺廚娘
           </RouterLink>
         </template>
         <template v-else>
-          <RouterLink class="nav-link nav-link-login" :class="{ 'nav-link-active': route.path === '/login' }"
-            to="/login">
+          <RouterLink
+            class="nav-link nav-link-login"
+            :class="{ 'nav-link-active': route.path === '/login' }"
+            to="/login"
+          >
             Login
           </RouterLink>
         </template>
@@ -140,7 +162,10 @@ onBeforeUnmount(stopAfterEach);
   text-decoration: none;
   font-size: 0.92rem;
   font-weight: 700;
-  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .nav-link:hover {
@@ -178,8 +203,6 @@ onBeforeUnmount(stopAfterEach);
   color: #ffffff;
 }
 
-
-
 @media (max-width: 640px) {
   .app-nav {
     padding: 0.65rem;
@@ -196,16 +219,20 @@ onBeforeUnmount(stopAfterEach);
     margin: 0 -0.65rem;
     padding: 0 0.65rem;
     /* 兩側淡出，暗示內容還有延伸 */
-    -webkit-mask-image: linear-gradient(to right,
-        transparent 0,
-        #000 0.65rem,
-        #000 calc(100% - 0.65rem),
-        transparent 100%);
-    mask-image: linear-gradient(to right,
-        transparent 0,
-        #000 0.65rem,
-        #000 calc(100% - 0.65rem),
-        transparent 100%);
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 0.65rem,
+      #000 calc(100% - 0.65rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 0.65rem,
+      #000 calc(100% - 0.65rem),
+      transparent 100%
+    );
   }
 }
 </style>

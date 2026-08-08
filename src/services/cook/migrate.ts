@@ -23,9 +23,7 @@ function asStringArray(value: unknown): string[] {
 }
 
 function asMealTags(value: unknown): MealSlot[] {
-  return asArray(value).filter((item): item is MealSlot =>
-    MEAL_SLOTS.includes(item as MealSlot),
-  );
+  return asArray(value).filter((item): item is MealSlot => MEAL_SLOTS.includes(item as MealSlot));
 }
 
 /** 單份食譜。已是目前版本就原樣回傳 */
@@ -47,8 +45,6 @@ export function migrateRecipe(raw: unknown): Recipe {
 
 /** 整批食譜。changed 為 false 時呼叫端不必回寫 */
 export function migrateRecipes(raws: unknown[]): { recipes: Recipe[]; changed: boolean } {
-  const changed = raws.some(
-    (raw) => !isObject(raw) || raw.schemaVersion !== COOK_SCHEMA_VERSION,
-  );
+  const changed = raws.some((raw) => !isObject(raw) || raw.schemaVersion !== COOK_SCHEMA_VERSION);
   return { recipes: raws.map(migrateRecipe), changed };
 }

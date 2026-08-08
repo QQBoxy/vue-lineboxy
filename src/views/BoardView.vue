@@ -112,14 +112,23 @@ onMounted(() => {
         <span class="crumb-sep">➡️</span>
         <span>{{ kanbanBoardName }}</span>
       </h2>
-      <ModalView class="action-btn-wrap" :cols="{ name: 'Kanban List Name' }" @submit="handleCreateKanbanList">
+      <ModalView
+        class="action-btn-wrap"
+        :cols="{ name: 'Kanban List Name' }"
+        @submit="handleCreateKanbanList"
+      >
         Create List
       </ModalView>
     </section>
 
     <section class="control-card">
       <ul v-if="kanbanLists.length" class="list-grid">
-        <li v-for="list in kanbanLists" :key="list.id" class="list-item" @click="handleOpenList(list.id, $event)">
+        <li
+          v-for="list in kanbanLists"
+          :key="list.id"
+          class="list-item"
+          @click="handleOpenList(list.id, $event)"
+        >
           <RouterLink class="list-link" :to="`/kanban/${route.params.id}/${list.id}`">
             <span class="list-order">{{ list.order }}</span>
             <span class="list-name">{{ list.name }}</span>
@@ -136,7 +145,7 @@ onMounted(() => {
             </ModalView>
             <ConfirmModalView
               title="Delete list?"
-              :message='`Delete \"${list.name}\"? This action cannot be undone.`'
+              :message="`Delete \&quot;${list.name}\&quot;? This action cannot be undone.`"
               confirm-text="Confirm Delete"
               @confirmed="handleDeleteKanbanList(list.id)"
             >
@@ -293,7 +302,10 @@ onMounted(() => {
   line-height: 1;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .action-btn-wrap :deep(button):hover {

@@ -164,7 +164,9 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
 
     <template v-if="personStore.person.isActive">
       <div v-if="isLoading" class="state-card"><p>載入課表中…</p></div>
-      <div v-else-if="errorMessage" class="state-card"><p>{{ errorMessage }}</p></div>
+      <div v-else-if="errorMessage" class="state-card">
+        <p>{{ errorMessage }}</p>
+      </div>
 
       <template v-else-if="plan">
         <p v-if="plan.description" class="plan-description">{{ plan.description }}</p>
@@ -191,7 +193,11 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
           <template v-else>
             <div class="effective-row">
               <span class="effective-value">{{ plan.effectiveFrom }} 起</span>
-              <button class="action-btn action-btn-outline" type="button" @click="startEditEffectiveFrom">
+              <button
+                class="action-btn action-btn-outline"
+                type="button"
+                @click="startEditEffectiveFrom"
+              >
                 調整生效日
               </button>
             </div>
@@ -415,7 +421,9 @@ const handleUpdateVideo = async (exerciseId: string, videoUrl: string) => {
   cursor: pointer;
   touch-action: manipulation;
   text-align: left;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
 }
 
 .variant-btn:hover {

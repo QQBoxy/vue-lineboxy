@@ -51,9 +51,7 @@ const handleSelect = (stageKey: string, itemKey: string) => {
         <span v-if="stage.rounds" class="round-badge">
           循環 {{ formatRange(stage.rounds, '組') }}
         </span>
-        <span v-if="stage.selection === 'choose-one'" class="choose-one-badge">
-          以下擇一即可
-        </span>
+        <span v-if="stage.selection === 'choose-one'" class="choose-one-badge"> 以下擇一即可 </span>
         <span v-if="stage.restBetweenRoundsSeconds" class="round-rest">
           組間休息 {{ formatRest(stage.restBetweenRoundsSeconds) }}
         </span>
@@ -180,7 +178,9 @@ const handleSelect = (stageKey: string, itemKey: string) => {
   text-align: left;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .item-btn:hover {

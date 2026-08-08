@@ -88,7 +88,9 @@ const handleSelect = (day: CalendarDay) => {
   font-size: 0.85rem;
   cursor: pointer;
   touch-action: manipulation;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
 }
 
 .day-cell:hover:not(:disabled) {

@@ -48,10 +48,7 @@ const loadAll = async () => {
     todayPlan.value = await workoutRepository.getPlanForDate(today);
     meta.value = await workoutRepository.getMeta();
 
-    recentLogs.value = await workoutRepository.listLogs(
-      recentDates[recentDates.length - 1],
-      today,
-    );
+    recentLogs.value = await workoutRepository.listLogs(recentDates[recentDates.length - 1], today);
     // 每天各自查生效課表，跨越生效日的日子才會對應到正確版本
     const pairs = await Promise.all(
       recentDates.map(
@@ -169,9 +166,7 @@ const handleImportFile = async (event: Event) => {
 
         <!-- 今天 -->
         <section class="today-card">
-          <span class="today-date">
-            今天 · {{ today }}（{{ WEEKDAY_LABELS[todayWeekday] }}）
-          </span>
+          <span class="today-date"> 今天 · {{ today }}（{{ WEEKDAY_LABELS[todayWeekday] }}） </span>
 
           <template v-if="todayGroup">
             <h2>{{ todayGroup.label }}</h2>
@@ -498,7 +493,9 @@ const handleImportFile = async (event: Event) => {
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .fallback-btn:hover {
@@ -520,7 +517,9 @@ const handleImportFile = async (event: Event) => {
   color: #115e59;
   text-decoration: none;
   box-shadow: 0 6px 22px -16px rgba(15, 23, 42, 0.38);
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .calendar-link:hover {
@@ -573,7 +572,9 @@ const handleImportFile = async (event: Event) => {
   background: #f8fafc;
   color: #1f2937;
   text-decoration: none;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .recent-row:hover {
@@ -679,7 +680,9 @@ const handleImportFile = async (event: Event) => {
   background: #f8fafc;
   color: #1f2937;
   text-decoration: none;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .plan-row:hover {

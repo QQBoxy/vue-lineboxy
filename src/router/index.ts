@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,75 +9,83 @@ const router = createRouter({
       children: [
         {
           path: '/',
-          component: () => import('../views/HomeView.vue')
+          component: () => import('../views/HomeView.vue'),
         },
         {
           path: '/person',
-          component: () => import('../views/PersonView.vue')
+          component: () => import('../views/PersonView.vue'),
         },
         {
           path: '/login',
-          component: () => import('../views/LoginView.vue')
+          component: () => import('../views/LoginView.vue'),
         },
         {
           path: '/logout',
-          component: () => import('../views/LogoutView.vue')
+          component: () => import('../views/LogoutView.vue'),
         },
         {
           path: '/total',
-          component: () => import('../views/TotalView.vue')
+          component: () => import('../views/TotalView.vue'),
         },
         {
           path: '/workout',
-          component: () => import('../views/WorkoutView.vue')
+          component: () => import('../views/WorkoutView.vue'),
         },
         {
           path: '/workout/import',
-          component: () => import('../views/WorkoutImportView.vue')
+          component: () => import('../views/WorkoutImportView.vue'),
         },
         {
           path: '/workout/log',
-          component: () => import('../views/WorkoutLogView.vue')
+          component: () => import('../views/WorkoutLogView.vue'),
         },
         {
           path: '/workout/calendar',
-          component: () => import('../views/WorkoutCalendarView.vue')
+          component: () => import('../views/WorkoutCalendarView.vue'),
+        },
+        {
+          path: '/workout/year',
+          component: () => import('../views/WorkoutYearView.vue'),
+        },
+        {
+          path: '/workout/trend/:id',
+          component: () => import('../views/WorkoutTrendView.vue'),
         },
         {
           path: '/workout/plan/:id',
-          component: () => import('../views/WorkoutPlanView.vue')
+          component: () => import('../views/WorkoutPlanView.vue'),
         },
         {
           path: '/cook',
-          component: () => import('../views/CookView.vue')
+          component: () => import('../views/CookView.vue'),
         },
         {
           path: '/cook/recipe/new',
-          component: () => import('../views/CookRecipeEditView.vue')
+          component: () => import('../views/CookRecipeEditView.vue'),
         },
         {
           path: '/cook/recipe/:id',
-          component: () => import('../views/CookRecipeView.vue')
+          component: () => import('../views/CookRecipeView.vue'),
         },
         {
           path: '/cook/recipe/:id/edit',
-          component: () => import('../views/CookRecipeEditView.vue')
+          component: () => import('../views/CookRecipeEditView.vue'),
         },
         {
           path: '/kanban',
-          component: () => import('../views/BoardsView.vue')
+          component: () => import('../views/BoardsView.vue'),
         },
         {
           path: '/kanban/:id',
-          component: () => import('../views/BoardView.vue')
+          component: () => import('../views/BoardView.vue'),
         },
         {
           path: '/kanban/:boardId/:listId',
-          component: () => import('../views/BoardListView.vue')
+          component: () => import('../views/BoardListView.vue'),
         },
-      ]
+      ],
     },
-  ]
-})
+  ],
+});
 
-export default router
+export default router;

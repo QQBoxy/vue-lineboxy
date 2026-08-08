@@ -81,14 +81,23 @@ onMounted(() => {
 
     <section class="control-card">
       <h2>Kanbans</h2>
-      <ModalView class="action-btn-wrap" :cols="{ name: 'Kanban Board Name' }" @submit="handleCreateKanbanBoard">
+      <ModalView
+        class="action-btn-wrap"
+        :cols="{ name: 'Kanban Board Name' }"
+        @submit="handleCreateKanbanBoard"
+      >
         Create Kanban
       </ModalView>
     </section>
 
     <section class="control-card">
       <ul v-if="kanbanBoards.length" class="board-list">
-        <li v-for="board in kanbanBoards" :key="board.id" class="board-item" @click="handleOpenBoard(board.id, $event)">
+        <li
+          v-for="board in kanbanBoards"
+          :key="board.id"
+          class="board-item"
+          @click="handleOpenBoard(board.id, $event)"
+        >
           <RouterLink class="board-link" :to="`/kanban/${board.id}`">
             {{ board.name }}
           </RouterLink>
@@ -104,7 +113,7 @@ onMounted(() => {
             </ModalView>
             <ConfirmModalView
               title="Delete board?"
-              :message='`Delete "${board.name}"?`'
+              :message="`Delete &quot;${board.name}&quot;?`"
               confirm-text="Confirm Delete"
               @confirmed="handleDeleteKanbanBoard(board.id)"
             >
@@ -227,7 +236,10 @@ onMounted(() => {
   line-height: 1;
   touch-action: manipulation;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .action-btn-wrap :deep(button):hover {

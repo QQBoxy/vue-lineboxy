@@ -3,11 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import RecipeCard from '@/components/cook/RecipeCard.vue';
 import { usePersonStore } from '@/stores/person';
 import { cookRepository } from '@/services/cook/localRepository';
-import {
-  daysSinceCookBackup,
-  exportCookBackup,
-  importCookBackup,
-} from '@/services/cook/backup';
+import { daysSinceCookBackup, exportCookBackup, importCookBackup } from '@/services/cook/backup';
 import { MEAL_LABELS, MEAL_SLOTS, type CookMeta, type Recipe } from '@/services/cook/types';
 
 const personStore = usePersonStore();
@@ -106,19 +102,11 @@ const handleImportFile = async (event: Event) => {
         <section class="today-card">
           <h2>今天煮什麼？</h2>
           <div class="meal-row">
-            <button
-              v-for="slot in MEAL_SLOTS"
-              :key="slot"
-              class="meal-btn"
-              type="button"
-              disabled
-            >
+            <button v-for="slot in MEAL_SLOTS" :key="slot" class="meal-btn" type="button" disabled>
               {{ MEAL_LABELS[slot] }}
             </button>
           </div>
-          <p class="empty-hint">
-            推薦需要累積烹飪紀錄才會準，等每日紀錄做好之後開放（批次 B）。
-          </p>
+          <p class="empty-hint">推薦需要累積烹飪紀錄才會準，等每日紀錄做好之後開放（批次 B）。</p>
         </section>
 
         <!-- 食譜 -->

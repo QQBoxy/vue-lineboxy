@@ -219,8 +219,7 @@ export function isStageSatisfied(stage: ChecklistStage, states: ItemStateMap): b
 
 export function countDone(stages: ChecklistStage[], states: ItemStateMap): number {
   return stages.reduce(
-    (total, stage) =>
-      total + stage.items.filter((item) => states[item.stageItemId]?.done).length,
+    (total, stage) => total + stage.items.filter((item) => states[item.stageItemId]?.done).length,
     0,
   );
 }
@@ -240,10 +239,7 @@ export function countRequired(stages: ChecklistStage[]): number {
  * 不開放手動選 done / partial：批次 C 的嚴格達成率直接吃 status，
  * 讓使用者在只勾三項時按下「完成」會讓那條線失去意義。
  */
-export function deriveStatus(
-  stages: ChecklistStage[],
-  states: ItemStateMap,
-): LogStatus | null {
+export function deriveStatus(stages: ChecklistStage[], states: ItemStateMap): LogStatus | null {
   // 整份都沒有可勾的項目（例如只有 NEAT 描述階段的日子）：
   // 使用者按下儲存這個動作本身就是「我做了」，否則這天永遠打不了卡
   if (countRequired(stages) === 0) return 'done';

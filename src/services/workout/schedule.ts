@@ -102,7 +102,9 @@ export function getGroupForDate(plan: WorkoutPlan | null, date: DateString): Pla
 }
 
 /** 星期 → 群組的對照表，供七天總覽使用 */
-export function mapWeekdaysToGroups(plan: WorkoutPlan | null): Record<IsoWeekday, PlanGroup | null> {
+export function mapWeekdaysToGroups(
+  plan: WorkoutPlan | null,
+): Record<IsoWeekday, PlanGroup | null> {
   const result = {} as Record<IsoWeekday, PlanGroup | null>;
   ALL_WEEKDAYS.forEach((weekday) => {
     result[weekday] = plan?.groups.find((group) => group.weekdays.includes(weekday)) ?? null;

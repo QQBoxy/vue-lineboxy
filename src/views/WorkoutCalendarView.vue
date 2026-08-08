@@ -143,6 +143,8 @@ const handleSelectDate = (date: string) => {
         <p class="stat-row">
           運動日佔比：{{ stats.activeDays }} / {{ stats.countedDays }} 天（{{ activeDayPercent }}%）
         </p>
+
+        <RouterLink class="year-btn" to="/workout/year">📊 年度總覽</RouterLink>
       </section>
     </template>
 
@@ -372,6 +374,25 @@ const handleSelectDate = (date: string) => {
   margin: 0;
   color: #94a3b8;
   font-size: 0.88rem;
+}
+
+.year-btn {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f1f5f9;
+  color: #0f766e;
+  text-align: center;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
+}
+
+.year-btn:hover {
+  background: #e2e8f0;
 }
 
 .flash {

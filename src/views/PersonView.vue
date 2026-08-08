@@ -182,9 +182,7 @@ onMounted(async () => {
             </button>
           </div>
 
-          <p v-if="!lineUserIdRows.length" class="empty-line-user-ids">
-            No Line User IDs.
-          </p>
+          <p v-if="!lineUserIdRows.length" class="empty-line-user-ids">No Line User IDs.</p>
         </div>
 
         <div class="line-user-id-actions">
@@ -302,7 +300,9 @@ onMounted(async () => {
   font-size: 1rem;
   line-height: 1.35;
   background: #ffffff;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .line-user-id-input:focus {
@@ -335,7 +335,9 @@ onMounted(async () => {
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .icon-action-btn:hover {
@@ -380,7 +382,9 @@ onMounted(async () => {
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .action-btn:hover:not(:disabled) {
@@ -485,7 +489,10 @@ onMounted(async () => {
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .logout-btn:hover {

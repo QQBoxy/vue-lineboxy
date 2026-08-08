@@ -107,7 +107,9 @@ const handleSelect = (cell: DayCell) => {
 
 .day-cell-clickable {
   cursor: pointer;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .day-cell-clickable:hover {

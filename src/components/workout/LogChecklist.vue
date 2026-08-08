@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { ChecklistItem, ChecklistStage, ItemState, ItemStateMap } from '@/services/workout/checklist';
+import type {
+  ChecklistItem,
+  ChecklistStage,
+  ItemState,
+  ItemStateMap,
+} from '@/services/workout/checklist';
 import { fromDurationInput, toDurationInput } from '@/services/workout/checklist';
 import type { DisplayItem } from '@/services/workout/display';
 import { formatRange } from '@/services/workout/schedule';
@@ -32,8 +37,7 @@ const toggleExpanded = (item: ChecklistItem) => {
   expanded.value = { ...expanded.value, [item.stageItemId]: !isExpanded(item) };
 };
 
-const stateOf = (stageItemId: string): ItemState =>
-  props.states[stageItemId] ?? { done: false };
+const stateOf = (stageItemId: string): ItemState => props.states[stageItemId] ?? { done: false };
 
 /** 輸入框留空 = 照課表做，因此以課表規格當 placeholder，不預填成實際值 */
 const setsPlaceholder = (item: ChecklistItem) => (item.sets ? `${item.sets}` : '組數');
@@ -94,9 +98,7 @@ const handleDurationInput = (item: ChecklistItem, event: Event) => {
         <span v-if="stage.rounds" class="round-badge">
           循環 {{ formatRange(stage.rounds, '組') }}
         </span>
-        <span v-if="stage.selection === 'choose-one'" class="choose-one-badge">
-          擇一即可
-        </span>
+        <span v-if="stage.selection === 'choose-one'" class="choose-one-badge"> 擇一即可 </span>
       </div>
 
       <p v-if="stage.note" class="stage-note">{{ stage.note }}</p>
@@ -133,9 +135,7 @@ const handleDurationInput = (item: ChecklistItem, event: Event) => {
 
           <!-- 防護重點只有在做的當下看到才有用，不能只藏在詳情頁 -->
           <ul v-if="item.display.cautions.length > 0" class="item-cautions">
-            <li v-for="(caution, index) in item.display.cautions" :key="index">
-              ⚠️ {{ caution }}
-            </li>
+            <li v-for="(caution, index) in item.display.cautions" :key="index">⚠️ {{ caution }}</li>
           </ul>
 
           <div class="item-tools">
@@ -320,7 +320,9 @@ const handleDurationInput = (item: ChecklistItem, event: Event) => {
   border-radius: 10px;
   background: #f8fafc;
   padding: 0.5rem 0.65rem;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .item-done {
@@ -407,7 +409,9 @@ const handleDurationInput = (item: ChecklistItem, event: Event) => {
   font-weight: 700;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .tool-btn:hover {
