@@ -38,10 +38,12 @@ const PROMPT_TEMPLATE = `請依下列 JSON schema 輸出運動課表，只輸出
 - durationSeconds 是範圍物件；「10-15 分鐘」寫成 { "min": 600, "max": 900 }
 - 防護與注意事項分兩層：群組層放 cautions，動作層也放 cautions
 - 全課表要避開的動作（例如深蹲、跳躍）請列在最外層的 avoidances
-- 忙碌日的替代方案請放在 fallbackRoutines
+- 忙碌日的替代方案或「生理期舒緩課表」請放在 fallbackRoutines。
+  注意：FallbackRoutine 沒有 stages，請將動作直接放入 items 陣列中！
 - 每個動作請附一則 YouTube 參考影片連結（videoUrl），找不到則留空字串
 - 每個動作請列出所需 equipment（器材）
 - 相同的動作在不同群組請使用完全一致的名稱
+- 若有全新動作，請務必給齊 nameEn、targetMuscles、equipment、steps、cautions 等動作定義欄位
 - 請確認各階段 estimatedMinutes 加總等於該選項宣稱的 estimatedMinutes
 
 Schema：
@@ -103,11 +105,31 @@ Schema：
       "when": "忙碌日／時間不夠時",
       "estimatedMinutes": { "min": 10 },
       "items": [ 同上動作格式 ]
+    },
+    {
+      "label": "生理期舒緩課表",
+      "when": "生理期不適、不想進行高強度運動時",
+      "estimatedMinutes": { "min": 10, "max": 15 },
+      "items": [
+        {
+          "name": "仰臥嬰兒式",
+          "nameEn": "Child's Pose",
+          "targetMuscles": ["下背", "骨盆"],
+          "equipment": ["瑜珈墊"],
+          "steps": ["..."],
+          "cautions": ["..."],
+          "videoUrl": "",
+          "measureType": "hold",
+          "holdSeconds": 60,
+          "sets": 1,
+          "specText": "維持 60 秒"
+        }
+      ]
     }
   ]
 }
 
-我的需求：（請在此填寫年齡、身體限制、可用器材、每次可運動時間、目標）`;
+我的需求：（請在此填寫年齡、身體限制、可用器材、每次可運動時間、目標。例如：新增生理期舒緩課表，挑選溫和動作並避開下腹壓迫）`;
 
 const router = useRouter();
 const personStore = usePersonStore();

@@ -1,0 +1,763 @@
+{
+  "name": "專屬個人健康無痛運動課表",
+  "description": "專為個人量身打造的無痛健康啟動課表，完全避開深蹲、跳躍與爬樓梯，保護膝蓋與左腳踝。著重核心與上肢力量建構、心肺耐力提升與生理期彈性舒緩。",
+  "effectiveFrom": "2026-08-09",
+  "medicalNotes": [
+    "若因二尖瓣脫垂出現心悸、胸悶、頭暈或過度喘不過氣，請立即停止運動並採坐姿休息。",
+    "若因膽結石出現右上腹鈍痛或脹痛，請暫停所有活動並採半躺姿休息。",
+    "如有持續不適，請務必尋求主治醫師的專業評估與診斷。"
+  ],
+  "avoidances": [ "深蹲", "跳躍", "爬樓梯", "站姿抽車", "高阻力重踩" ],
+  "groups": [
+    {
+      "label": "MV 熱舞有氧與備用核心",
+      "weekdays": [1],
+      "requirement": "all",
+      "countsTowardQuota": true,
+      "summary": "週一舞蹈課程或極速版核心與上肢訓練（生理期改坐姿舒緩）",
+      "cautions": [
+        "舞蹈課遇到跳躍與深蹲請自動替換為原地踩步或半蹲",
+        "舞蹈課若適逢生理期經血量多或腹痛，請改為聽講或做床上舒緩課表"
+      ],
+      "estimatedMinutes": { "min": 15, "max": 60 },
+      "variants": [
+        {
+          "label": "MV 熱舞有氧課",
+          "summary": "地區運動中心 60 分鐘 MV 熱舞有氧（不跳躍、不深蹲）",
+          "estimatedMinutes": { "min": 60 },
+          "stages": [
+            {
+              "name": "MV 熱舞有氧主課程",
+              "estimatedMinutes": { "min": 60 },
+              "selection": "all",
+              "items": [
+                {
+                  "name": "MV 熱舞有氧",
+                  "nameEn": "MV Dance Aerobics",
+                  "targetMuscles": ["全身心肺", "下肢肌群", "核心"],
+                  "equipment": ["室內專屬平底運動鞋"],
+                  "steps": [
+                    "穿著室內專屬平底運動鞋",
+                    "跟隨音樂節奏進行律動與舞步練習",
+                    "遇跳躍動作改為原地踏步，遇深蹲改為半蹲"
+                  ],
+                  "cautions": [
+                    "嚴禁跳躍與深蹲",
+                    "若出現心悸或胸悶請立即至旁休息"
+                  ],
+                  "videoUrl": "https://www.youtube.com/watch?v=68xtW22Nl8w",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 3600 },
+                  "specText": "單次 60 分鐘"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "15 分鐘極速版核心與上肢",
+          "summary": "讀書會日或居家備戰日執行的極速版核心上肢課表",
+          "estimatedMinutes": { "min": 15 },
+          "stages": [
+            {
+              "name": "第一階段：熱身",
+              "estimatedMinutes": { "min": 2 },
+              "selection": "all",
+              "items": [
+                {
+                  "name": "坐姿原地抬腿",
+                  "nameEn": "Seated Marching",
+                  "targetMuscles": ["髖屈肌", "核心"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [
+                    "坐在椅子前半部，背部挺直",
+                    "左右腳交替輕抬，膝蓋不超過腰部"
+                  ],
+                  "cautions": ["腰部保持挺直不駝背"],
+                  "videoUrl": "https://www.youtube.com/shorts/hWa1jrG2EZg",
+                  "measureType": "reps",
+                  "reps": { "min": 15, "max": 20 },
+                  "perSide": true,
+                  "specText": "1 分鐘（左右各抬一次算 1 次，每分鐘約 15-20 次）"
+                },
+                {
+                  "name": "坐姿雙手繞環",
+                  "nameEn": "Seated Arm Circles",
+                  "targetMuscles": ["肩關節", "手臂"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [
+                    "雙手向兩側平舉",
+                    "順時針慢轉 30 秒，逆時針慢轉 30 秒"
+                  ],
+                  "cautions": ["過程中不聳肩"],
+                  "videoUrl": "https://www.youtube.com/watch?v=140RTG4i_3s",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 60 },
+                  "specText": "1 分鐘（順/逆時針各 30 秒）"
+                }
+              ]
+            },
+            {
+              "name": "第二階段：核心與上肢主訓練",
+              "estimatedMinutes": { "min": 10 },
+              "rounds": { "min": 2, "max": 2 },
+              "restBetweenRoundsSeconds": { "min": 60, "max": 60 },
+              "selection": "all",
+              "note": "進行 2 循環訓練",
+              "items": [
+                {
+                  "name": "坐姿核心收縮",
+                  "nameEn": "Seated Vacuums",
+                  "targetMuscles": ["深層腹橫肌"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [
+                    "坐在椅子上，吸氣時肚子放鬆挺出",
+                    "吐氣時將肚臍往脊椎貼近（縮肚子），維持吐氣 5 秒",
+                    "保持自然順暢呼吸，不憋氣"
+                  ],
+                  "cautions": ["過程中不可憋氣"],
+                  "videoUrl": "https://www.youtube.com/watch?v=k3G_p3yE4aE",
+                  "measureType": "reps",
+                  "holdSeconds": 5,
+                  "reps": { "min": 10, "max": 10 },
+                  "specText": "每組 10 次（每次維持 5 秒）"
+                },
+                {
+                  "name": "椅子扶手伏地挺身",
+                  "nameEn": "Incline Push-ups",
+                  "targetMuscles": ["胸大肌", "三頭肌", "核心"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [
+                    "雙手撐在靠牆穩固的椅子扶手或椅緣",
+                    "身體呈斜直線，手肘向斜後方 45 度慢速彎曲",
+                    "胸口靠近椅緣後用手臂與胸肌推回"
+                  ],
+                  "cautions": ["腰部不下塌，過程中不聳肩"],
+                  "videoUrl": "https://www.youtube.com/shorts/LWAbGb9We5g",
+                  "measureType": "reps",
+                  "reps": { "min": 8, "max": 12 },
+                  "specText": "每組 8-12 次"
+                },
+                {
+                  "name": "墊上臀橋",
+                  "nameEn": "Glute Bridge",
+                  "targetMuscles": ["臀大肌", "大腿後側"],
+                  "equipment": ["瑜珈墊"],
+                  "steps": [
+                    "仰臥在瑜珈墊上，雙腳微彎踩地與臀同寬",
+                    "吐氣時用臀部力量抬起至身體呈一直線",
+                    "頂端停留 2 秒後慢慢放下"
+                  ],
+                  "cautions": ["完全不壓迫膝蓋關節，避免腰部過度拱起"],
+                  "videoUrl": "https://www.youtube.com/watch?v=tqp5XQPpTxY",
+                  "measureType": "reps",
+                  "reps": { "min": 12, "max": 12 },
+                  "holdSeconds": 2,
+                  "specText": "每組 12 次（頂端停留 2 秒）"
+                },
+                {
+                  "name": "椅子坐姿拳擊",
+                  "nameEn": "Seated Shadow Boxing",
+                  "targetMuscles": ["肩部", "手臂", "心肺"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [
+                    "坐姿，核心收緊，雙手握拳護臉",
+                    "左右交替向前出拳，配合吐氣",
+                    "速度由慢漸快，保持節奏順暢"
+                  ],
+                  "cautions": ["下肢放鬆不給左腳踝壓力"],
+                  "videoUrl": "https://www.youtube.com/watch?v=68xtW22Nl8w",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 45 },
+                  "specText": "每組 45 秒"
+                }
+              ]
+            },
+            {
+              "name": "第三階段：溫和拉伸",
+              "estimatedMinutes": { "min": 3 },
+              "selection": "all",
+              "items": [
+                {
+                  "name": "坐姿大腿後側伸展",
+                  "nameEn": "Seated Hamstring Stretch",
+                  "targetMuscles": ["大腿後側肌群"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [
+                    "坐在椅子前三分之一，一腳向前伸直、腳尖朝上",
+                    "背挺直微微前傾，感覺大腿後側微緊"
+                  ],
+                  "cautions": ["不駝背，微緊即可不強拉"],
+                  "videoUrl": "https://www.youtube.com/watch?v=3R4N3C3zIsk",
+                  "measureType": "hold",
+                  "holdSeconds": 45,
+                  "perSide": true,
+                  "sets": 1,
+                  "specText": "左右兩邊各 45 秒（總計 1.5 分鐘）"
+                },
+                {
+                  "name": "坐姿胸部伸展",
+                  "nameEn": "Seated Chest Stretch",
+                  "targetMuscles": ["胸大肌", "肩膀前側"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [
+                    "坐在椅子上，雙手在背後扣住或抓住毛巾",
+                    "肩膀下沉，胸口微微向上挺起，保持順暢呼吸"
+                  ],
+                  "cautions": ["不聳肩，保持自然呼吸"],
+                  "videoUrl": "https://www.youtube.com/watch?v=W3b_v5g6s8Y",
+                  "measureType": "hold",
+                  "holdSeconds": 45,
+                  "sets": 2,
+                  "specText": "每次維持 45 秒，重複 2 次（總計 1.5 分鐘）"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "買菜備料煮飯日 (NEAT 熱量消耗)",
+      "weekdays": [2, 3],
+      "requirement": "all",
+      "countsTowardQuota": false,
+      "summary": "備料煮飯與日常家務熱量消耗，飯後不強求大課表",
+      "cautions": [ "久站備料注意姿勢，空檔可做流理台微肌力" ],
+      "estimatedMinutes": { "min": 1 },
+      "stages": [
+        {
+          "name": "廚房 1 分鐘微肌力（擇一執行）",
+          "estimatedMinutes": { "min": 1 },
+          "selection": "choose-one",
+          "items": [
+            {
+              "name": "流理台扶手伏地挺身",
+              "nameEn": "Countertop Push-ups",
+              "targetMuscles": ["胸大肌", "手臂肌群"],
+              "equipment": ["穩固流理台"],
+              "steps": [
+                "雙手撐在穩固的流理台邊緣",
+                "背挺直，手肘向斜後方彎曲後推回"
+              ],
+              "cautions": ["流理台需穩固防滑"],
+              "videoUrl": "https://www.youtube.com/shorts/J1xTaLuJWGY",
+              "measureType": "reps",
+              "reps": { "min": 8, "max": 10 },
+              "specText": "8-10 次（耗時約 45-60 秒）"
+            },
+            {
+              "name": "廚房靠牆靜止收縮",
+              "nameEn": "Kitchen Wall Press",
+              "targetMuscles": ["腹橫肌", "核心"],
+              "equipment": ["穩固牆面"],
+              "steps": [
+                "背部貼牆站立（不深蹲）",
+                "雙手掌心用力推牆，腹部收緊"
+              ],
+              "cautions": ["不做深蹲下蹲動作"],
+              "videoUrl": "",
+              "measureType": "hold",
+              "holdSeconds": 30,
+              "sets": 2,
+              "specText": "維持 30 秒，做 2 次"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "低阻力平路飛輪或舞蹈複習",
+      "weekdays": [4],
+      "requirement": "all",
+      "countsTowardQuota": true,
+      "summary": "10 分鐘低阻力飛輪或 MV 舞蹈複習（擇一進行）",
+      "cautions": [
+        "飛輪務必穿著專屬室內平底運動鞋，阻力設為 0，嚴禁站姿抽車與重踩",
+        "左腳踝若感到痠痛，立即下車改做椅子運動"
+      ],
+      "estimatedMinutes": { "min": 10, "max": 15 },
+      "variants": [
+        {
+          "label": "坐姿低阻力平路飛輪",
+          "summary": "10 分鐘 0 阻力平路坐姿踩踏",
+          "estimatedMinutes": { "min": 10 },
+          "stages": [
+            {
+              "name": "平路飛輪踩踏",
+              "estimatedMinutes": { "min": 10 },
+              "selection": "all",
+              "items": [
+                {
+                  "name": "坐姿低阻力平路飛輪",
+                  "nameEn": "Seated Low-Resistance Stationary Bike",
+                  "targetMuscles": ["心肺耐力", "大腿前側", "臀肌"],
+                  "equipment": ["BH 飛輪機", "室內專屬平底運動鞋"],
+                  "steps": [
+                    "調整座墊高度與髂骨同高，穿緊室內運動鞋",
+                    "阻力設定為 0（完全無阻力）",
+                    "保持坐姿，踩踏踏頻維持 60-70 RPM"
+                  ],
+                  "cautions": [
+                    "嚴禁站姿抽車與高阻力重踩",
+                    "若左腳踝不適請立即停止"
+                  ],
+                  "videoUrl": "",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 600 },
+                  "resistance": "0",
+                  "specText": "單次 10 分鐘（阻力 0，踏頻 60-70 RPM）"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "MV 舞蹈複習",
+          "summary": "MV 舞蹈動作複習 10-15 分鐘（無衝擊踏步）",
+          "estimatedMinutes": { "min": 10, "max": 15 },
+          "stages": [
+            {
+              "name": "MV 舞蹈律動",
+              "estimatedMinutes": { "min": 10, "max": 15 },
+              "selection": "all",
+              "items": [
+                {
+                  "name": "MV 熱舞律動複習",
+                  "nameEn": "MV Dance Practice",
+                  "targetMuscles": ["心肺耐力", "全身協調"],
+                  "equipment": ["室內專屬平底運動鞋"],
+                  "steps": [
+                    "穿著專屬運動鞋，跟隨音樂進行律動",
+                    "跳躍改為原地踏步，深蹲改為半蹲"
+                  ],
+                  "cautions": ["保持心率溫和上升，不強求跳躍高衝擊動作"],
+                  "videoUrl": "https://www.youtube.com/watch?v=68xtW22Nl8w",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 600, "max": 900 },
+                  "specText": "10-15 分鐘"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "核心與上肢完整肌力課表",
+      "weekdays": [5],
+      "requirement": "all",
+      "countsTowardQuota": true,
+      "summary": "20 分鐘完整版核心與上肢訓練（保護膝蓋與腳踝）",
+      "cautions": [ "全程不壓迫膝蓋與腳踝，注意動作品質" ],
+      "estimatedMinutes": { "min": 20 },
+      "stages": [
+        {
+          "name": "第一階段：熱身",
+          "estimatedMinutes": { "min": 3 },
+          "selection": "all",
+          "items": [
+            {
+              "name": "坐姿原地抬腿",
+              "nameEn": "Seated Marching",
+              "targetMuscles": ["髖屈肌", "核心"],
+              "equipment": ["穩固靠背椅子"],
+              "steps": [
+                "坐在椅子前半部，背部挺直",
+                "左右腳交替輕抬，膝蓋不超過腰部"
+              ],
+              "cautions": ["腰部挺直不駝背"],
+              "videoUrl": "https://www.youtube.com/shorts/hWa1jrG2EZg",
+              "measureType": "reps",
+              "reps": { "min": 15, "max": 20 },
+              "perSide": true,
+              "specText": "2 分鐘（左右各抬一次算 1 次，每分鐘約 15-20 次）"
+            },
+            {
+              "name": "坐姿雙手繞環",
+              "nameEn": "Seated Arm Circles",
+              "targetMuscles": ["肩關節", "手臂"],
+              "equipment": ["穩固靠背椅子"],
+              "steps": [
+                "雙手向兩側平舉",
+                "順時針慢轉 30 秒，逆時針慢轉 30 秒"
+              ],
+              "cautions": ["過程中不聳肩"],
+              "videoUrl": "https://www.youtube.com/watch?v=140RTG4i_3s",
+              "measureType": "time",
+              "durationSeconds": { "min": 60 },
+              "specText": "1 分鐘（順/逆時針各 30 秒）"
+            }
+          ]
+        },
+        {
+          "name": "第二階段：核心與上肢主訓練",
+          "estimatedMinutes": { "min": 14 },
+          "rounds": { "min": 3, "max": 3 },
+          "restBetweenRoundsSeconds": { "min": 60, "max": 60 },
+          "selection": "all",
+          "note": "進行 3 循環訓練",
+          "items": [
+            {
+              "name": "坐姿核心收縮",
+              "nameEn": "Seated Vacuums",
+              "targetMuscles": ["深層腹橫肌"],
+              "equipment": ["穩固靠背椅子"],
+              "steps": [
+                "坐在椅子上，吸氣時肚子放鬆挺出",
+                "吐氣時將肚臍往脊椎貼近（縮肚子），維持吐氣 5 秒",
+                "保持自然順暢呼吸，不憋氣"
+              ],
+              "cautions": ["過程中不可憋氣"],
+              "videoUrl": "https://www.youtube.com/watch?v=k3G_p3yE4aE",
+              "measureType": "reps",
+              "holdSeconds": 5,
+              "reps": { "min": 10, "max": 10 },
+              "specText": "每組 10 次（每次維持 5 秒）"
+            },
+            {
+              "name": "椅子扶手伏地挺身",
+              "nameEn": "Incline Push-ups",
+              "targetMuscles": ["胸大肌", "三頭肌", "核心"],
+              "equipment": ["穩固靠背椅子"],
+              "steps": [
+                "雙手撐在靠牆穩固的椅子扶手或椅緣",
+                "身體呈斜直線，手肘向斜後方 45 度慢速彎曲",
+                "胸口靠近椅緣後用手臂與胸肌推回"
+              ],
+              "cautions": ["腰部不下塌，過程中不聳肩"],
+              "videoUrl": "https://www.youtube.com/shorts/LWAbGb9We5g",
+              "measureType": "reps",
+              "reps": { "min": 8, "max": 12 },
+              "specText": "每組 8-12 次"
+            },
+            {
+              "name": "墊上臀橋",
+              "nameEn": "Glute Bridge",
+              "targetMuscles": ["臀大肌", "大腿後側"],
+              "equipment": ["瑜珈墊"],
+              "steps": [
+                "仰臥在瑜珈墊上，雙腳微彎踩地與臀同寬",
+                "吐氣時用臀部力量抬起至身體呈一直線",
+                "頂端停留 2 秒後慢慢放下"
+              ],
+              "cautions": ["完全不壓迫膝蓋關節，避免腰部過度拱起"],
+              "videoUrl": "https://www.youtube.com/watch?v=tqp5XQPpTxY",
+              "measureType": "reps",
+              "reps": { "min": 12, "max": 12 },
+              "holdSeconds": 2,
+              "specText": "每組 12 次（頂端停留 2 秒）"
+            },
+            {
+              "name": "椅子坐姿拳擊",
+              "nameEn": "Seated Shadow Boxing",
+              "targetMuscles": ["肩部", "手臂", "心肺"],
+              "equipment": ["穩固靠背椅子"],
+              "steps": [
+                "坐姿，核心收緊，雙手握拳護臉",
+                "左右交替向前出拳，配合吐氣",
+                "速度由慢漸快，保持節奏順暢"
+              ],
+              "cautions": ["下肢放鬆不給左腳踝壓力"],
+              "videoUrl": "https://www.youtube.com/watch?v=68xtW22Nl8w",
+              "measureType": "time",
+              "durationSeconds": { "min": 45 },
+              "specText": "每組 45 秒"
+            }
+          ]
+        },
+        {
+          "name": "第三階段：溫和拉伸",
+          "estimatedMinutes": { "min": 3 },
+          "selection": "all",
+          "items": [
+            {
+              "name": "坐姿大腿後側伸展",
+              "nameEn": "Seated Hamstring Stretch",
+              "targetMuscles": ["大腿後側肌群"],
+              "equipment": ["穩固靠背椅子"],
+              "steps": [
+                "坐在椅子前三分之一，一腳向前伸直、腳尖朝上",
+                "背挺直微微前傾，感覺大腿後側微緊"
+              ],
+              "cautions": ["不駝背，微緊即可不強拉"],
+              "videoUrl": "https://www.youtube.com/watch?v=3R4N3C3zIsk",
+              "measureType": "hold",
+              "holdSeconds": 45,
+              "perSide": true,
+              "sets": 1,
+              "specText": "左右兩邊各 45 秒（總計 1.5 分鐘）"
+            },
+            {
+              "name": "坐姿胸部伸展",
+              "nameEn": "Seated Chest Stretch",
+              "targetMuscles": ["胸大肌", "肩膀前側"],
+              "equipment": ["穩固靠背椅子"],
+              "steps": [
+                "坐在椅子上，雙手在背後扣住或抓住毛巾",
+                "肩膀下沉，胸口微微向上挺起，保持順暢呼吸"
+              ],
+              "cautions": ["不聳肩，保持自然呼吸"],
+              "videoUrl": "https://www.youtube.com/watch?v=W3b_v5g6s8Y",
+              "measureType": "hold",
+              "holdSeconds": 45,
+              "sets": 2,
+              "specText": "每次維持 45 秒，重複 2 次（總計 1.5 分鐘）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "週末輕活動或居家放鬆",
+      "weekdays": [6, 7],
+      "requirement": "any-one",
+      "countsTowardQuota": true,
+      "summary": "戶外散步 20 分鐘或客廳 15 分鐘居家放鬆（六或日擇一）",
+      "cautions": [ "散步以平路為主，若膝蓋不適即刻休息" ],
+      "estimatedMinutes": { "min": 15, "max": 20 },
+      "variants": [
+        {
+          "label": "戶外散步",
+          "summary": "戶外溫和散步 20 分鐘",
+          "estimatedMinutes": { "min": 20 },
+          "stages": [
+            {
+              "name": "戶外平路散步",
+              "estimatedMinutes": { "min": 20 },
+              "selection": "all",
+              "items": [
+                {
+                  "name": "戶外平路散步",
+                  "nameEn": "Outdoor Walking",
+                  "targetMuscles": ["心肺耐力", "下肢肌群"],
+                  "equipment": ["平底運動鞋"],
+                  "steps": [
+                    "平坦路面溫和散步",
+                    "保持舒適輕鬆可對話的節奏"
+                  ],
+                  "cautions": ["避免爬坡或上下樓梯"],
+                  "videoUrl": "",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 1200 },
+                  "specText": "20 分鐘"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "客廳居家放鬆",
+          "summary": "15 分鐘全身關節溫和修復與放鬆",
+          "estimatedMinutes": { "min": 15 },
+          "stages": [
+            {
+              "name": "關節修復與放鬆",
+              "estimatedMinutes": { "min": 15 },
+              "selection": "all",
+              "items": [
+                {
+                  "name": "坐姿頭頸溫和繞環",
+                  "nameEn": "Seated Neck Circles",
+                  "targetMuscles": ["頸部肌群"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [ "坐姿挺直，頭部緩慢順時針與逆時針繞環" ],
+                  "cautions": ["動作極慢不硬拉"],
+                  "videoUrl": "",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 60 },
+                  "specText": "1 分鐘"
+                },
+                {
+                  "name": "坐姿貓牛式脊椎伸展",
+                  "nameEn": "Seated Cat-Cow Stretch",
+                  "targetMuscles": ["脊椎", "背部肌群"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [ "坐姿，吸氣拱背挺胸，吐氣圓背收腹" ],
+                  "cautions": ["配合呼吸慢慢進行"],
+                  "videoUrl": "https://www.youtube.com/shorts/fW5v47M4mB0",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 120 },
+                  "specText": "2 分鐘"
+                },
+                {
+                  "name": "坐姿胸部伸展",
+                  "nameEn": "Seated Chest Stretch",
+                  "targetMuscles": ["胸大肌"],
+                  "equipment": ["穩固靠背椅子"],
+                  "steps": [ "雙手背後扣住或拉毛巾，胸口微挺" ],
+                  "cautions": ["不聳肩"],
+                  "videoUrl": "https://www.youtube.com/watch?v=W3b_v5g6s8Y",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 120 },
+                  "specText": "2 分鐘"
+                },
+                {
+                  "name": "仰臥雙膝抱胸",
+                  "nameEn": "Double Knee-to-Chest Stretch",
+                  "targetMuscles": ["下背肌群", "臀肌"],
+                  "equipment": ["瑜珈墊"],
+                  "steps": [ "平躺，雙手抱膝靠近胸口，輕輕左右搖晃" ],
+                  "cautions": ["動作溫和不勉強"],
+                  "videoUrl": "https://www.youtube.com/watch?v=bC6_JpE_028",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 180 },
+                  "specText": "3 分鐘"
+                },
+                {
+                  "name": "輕盈伸展與放鬆",
+                  "nameEn": "Gentle Stretch and Relaxation",
+                  "targetMuscles": ["全身肌群"],
+                  "equipment": ["瑜珈墊"],
+                  "steps": [ "輕鬆原地站立或坐姿，進行深呼吸與手臂全身輕柔伸展" ],
+                  "cautions": ["保持呼吸順暢不憋氣"],
+                  "videoUrl": "",
+                  "measureType": "time",
+                  "durationSeconds": { "min": 420 },
+                  "specText": "7 分鐘"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "fallbackRoutines": [
+    {
+      "label": "5 分鐘隱形坐姿核心",
+      "when": "讀書會聽講時或忙碌日靜音啟動",
+      "estimatedMinutes": { "min": 5 },
+      "items": [
+        {
+          "name": "坐姿腹橫肌等長收縮",
+          "nameEn": "Seated Abdominal Bracing",
+          "targetMuscles": ["深層腹橫肌"],
+          "equipment": ["穩固靠背椅子"],
+          "steps": [
+            "坐直，吐氣時慢吞吞地把肚臍往脊椎方向收緊，維持 10 秒後放鬆",
+            "過程中保持自然呼吸不憋氣"
+          ],
+          "cautions": ["不抬肩，不憋氣"],
+          "videoUrl": "",
+          "measureType": "reps",
+          "holdSeconds": 10,
+          "reps": { "min": 10 },
+          "specText": "重複 10 次（每次 10 秒，總計 2.5 分鐘）"
+        },
+        {
+          "name": "坐姿交替提腳跟",
+          "nameEn": "Seated Heel Raises",
+          "targetMuscles": ["小腿肌群", "下肢循環"],
+          "equipment": ["穩固靠背椅子"],
+          "steps": [
+            "雙腳平踩，保持上半身挺直",
+            "左右交替抬起腳跟（腳尖不離地），促進血液循環"
+          ],
+          "cautions": ["腳尖不離地"],
+          "videoUrl": "https://www.youtube.com/shorts/XJ7p9I-9q_M",
+          "measureType": "reps",
+          "reps": { "min": 30, "max": 30 },
+          "perSide": true,
+          "specText": "左右交替 30 次（總計 2.5 分鐘）"
+        }
+      ]
+    },
+    {
+      "label": "睡前床上放鬆課表",
+      "when": "忙碌日 21:00 後或生理期下背舒緩",
+      "estimatedMinutes": { "min": 5, "max": 10 },
+      "items": [
+        {
+          "name": "仰臥雙膝抱胸",
+          "nameEn": "Double Knee-to-Chest Stretch",
+          "targetMuscles": ["下背肌群", "臀肌"],
+          "equipment": ["床或瑜珈墊"],
+          "steps": [
+            "平躺在床上，雙手抱住單膝或雙膝靠近胸口",
+            "輕輕左右搖晃下背，舒緩腰部壓力"
+          ],
+          "cautions": ["動作溫和不強拉"],
+          "videoUrl": "https://www.youtube.com/watch?v=bC6_JpE_028",
+          "measureType": "hold",
+          "holdSeconds": 40,
+          "sets": 2,
+          "specText": "維持 40 秒，重複 2 次"
+        },
+        {
+          "name": "仰臥脊椎扭轉伸展",
+          "nameEn": "Supine Spinal Twist",
+          "targetMuscles": ["脊椎", "腰部肌群"],
+          "equipment": ["床或瑜珈墊"],
+          "steps": [
+            "平躺，雙手向兩側平開",
+            "雙膝彎曲併攏倒向左側，頭看右側；再換邊"
+          ],
+          "cautions": ["肩膀儘量平貼床面"],
+          "videoUrl": "https://www.youtube.com/watch?v=2TzR3A_C5Yg",
+          "measureType": "hold",
+          "holdSeconds": 45,
+          "perSide": true,
+          "sets": 1,
+          "specText": "左右兩邊各維持 45 秒"
+        }
+      ]
+    },
+    {
+      "label": "生理期舒緩課表",
+      "when": "生理期前 1-3 天經血量多、下腹悶脹或疲勞時",
+      "estimatedMinutes": { "min": 10, "max": 12 },
+      "items": [
+        {
+          "name": "仰臥雙膝抱胸",
+          "nameEn": "Double Knee-to-Chest Stretch",
+          "targetMuscles": ["下背肌群", "骨盆腔"],
+          "equipment": ["床或瑜珈墊"],
+          "steps": [
+            "平躺，雙手抱雙膝靠近胸口，配合深呼吸",
+            "可小幅度左右輕晃下背"
+          ],
+          "cautions": ["無須過度用力壓擠腹部"],
+          "videoUrl": "https://www.youtube.com/watch?v=bC6_JpE_028",
+          "measureType": "hold",
+          "holdSeconds": 40,
+          "sets": 3,
+          "specText": "維持 40 秒，重複 2-3 次"
+        },
+        {
+          "name": "仰臥脊椎扭轉伸展",
+          "nameEn": "Supine Spinal Twist",
+          "targetMuscles": ["腰部肌群", "骨盆血液循環"],
+          "equipment": ["床或瑜珈墊"],
+          "steps": [
+            "平躺雙手平開，雙膝彎曲倒向一側，頭轉向對側",
+            "保持慢吸慢吐，舒緩子宮收縮悶脹感"
+          ],
+          "cautions": ["保持自然呼吸不憋氣"],
+          "videoUrl": "https://www.youtube.com/watch?v=2TzR3A_C5Yg",
+          "measureType": "hold",
+          "holdSeconds": 45,
+          "perSide": true,
+          "sets": 2,
+          "specText": "左右兩邊各維持 45 秒，做 2 組"
+        },
+        {
+          "name": "仰臥束角式伸展",
+          "nameEn": "Supta Baddha Konasana",
+          "targetMuscles": ["髖關節", "鼠蹊部", "下腹放鬆"],
+          "equipment": ["床或瑜珈墊"],
+          "steps": [
+            "平躺，雙腳腳底板對貼，雙膝自然向兩側打開",
+            "雙手輕放在下腹部，進行深長順暢的腹式呼吸"
+          ],
+          "cautions": ["若大腿內側過緊可於膝蓋下方墊枕頭"],
+          "videoUrl": "",
+          "measureType": "hold",
+          "holdSeconds": 180,
+          "sets": 1,
+          "specText": "維持 2-3 分鐘"
+        }
+      ]
+    }
+  ]
+}
